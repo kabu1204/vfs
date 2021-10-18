@@ -1,6 +1,7 @@
 #include "main.h"
 #include "types.h"
 #include "superblock.h"
+#include "inode.h"
 #include <iostream>
 #include <cstdio>
 
@@ -32,9 +33,9 @@ int Init() {
     return 1;
 }
 
-int Format(std::ofstream* disk) {
+int InitSuperblock(std::ofstream* disk) {
     /*
-     * 功能：格式化磁盘
+     * 功能：初始化超级块
      */
     char fill_char = '\0';  // 空白填充字符
     superblock_c s_block(0, MAX_SPACE, BLOCK_SIZE, MAX_INODE_NODE);  // 建立新的superblock
@@ -44,8 +45,12 @@ int Format(std::ofstream* disk) {
     superblock_block_n = (superblock_block_size_n % BLOCK_SIZE == 0) ? superblock_size_n/BLOCK_SIZE : superblock_size_n/BLOCK_SIZE + 1;
     s_block.s_block.free_block_num -= superblock_block_n;
     s_block.s_block.free_space -= superblock_block_n*s_block.s_block.block_size;    // 剩余空间需要减去superblock所占空间。
-    s_block.s_block.inode_start_addr = s_block.s_block.superblock_start_addr + superblock_block_n*s_block.s_block.block_size;
-    s_block.s_block.superblock_size = superblock_size_n;
+    s_block.s_block.inode_start_addr = s_block.s_block.superblock_start_addr + superblock_block_n*s_block.s_block.block_size;   // i节点起始地址是superblock结束地址+1
+    s_block.s_block.superblock_size = superblock_size_n;    // superblock占用字节数
+
+    // superblock占用磁盘块置为已分配状态
+    for(int i=0; i<superblock_block_n; ++i)
+        s_block.s_block.alloc_map[i] = 1;
 
 
     disk -> write((char *)&(s_block.s_block), superblock_size_n);   // 写入superblock

@@ -8,9 +8,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/ycy/CLionProjects/vfs/inode.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/inode.cpp.o"
-  "/Users/ycy/CLionProjects/vfs/main.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/main.cpp.o"
-  "/Users/ycy/CLionProjects/vfs/superblock.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/superblock.cpp.o"
+  "/Users/ycy/Documents/CLionProjects/vfs/inode.cpp" "/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/inode.cpp.o"
+  "/Users/ycy/Documents/CLionProjects/vfs/main.cpp" "/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/main.cpp.o"
+  "/Users/ycy/Documents/CLionProjects/vfs/rights.cpp" "/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/rights.cpp.o"
+  "/Users/ycy/Documents/CLionProjects/vfs/superblock.cpp" "/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/superblock.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")
 

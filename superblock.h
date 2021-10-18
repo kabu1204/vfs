@@ -7,6 +7,7 @@
 #include <bitset>
 #define VFS_SUPERBLOCK_H
 
+#pragma pack(1)
 struct superblock{
     ulong max_space;                // 磁盘空间总字节数
     ulong block_size;               // 块大小，单位为Byte
@@ -21,12 +22,13 @@ struct superblock{
     ulong superblock_start_addr;    // 超级块起始地址，对齐方式：Byte
     ulong superblock_size;          // 超级块实际所占字节数
     ulong inode_start_addr;         // i节点起始地址，对齐方式：Byte
-
+    std::bitset<MAX_SPACE/BLOCK_SIZE> alloc_map;    // bitset，每一位对应一个block，0表示未分配，1表示已分配
 };
+#pragma pack()
 
 class superblock_c {
 public:
-    superblock s_block{};
+    superblock s_block;
 
     superblock_c(ulong _superblock_start_addr, ulong _max_space, ulong _block_size = BLOCK_SIZE, ulong _inode_num = MAX_INODE_NODE);
 

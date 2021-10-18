@@ -57,10 +57,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/ycy/CLionProjects/vfs
+CMAKE_SOURCE_DIR = /Users/ycy/Documents/CLionProjects/vfs
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/ycy/CLionProjects/vfs/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles /Users/ycy/CLionProjects/vfs/cmake-build-debug//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -177,6 +177,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+rights.o: rights.cpp.o
+.PHONY : rights.o
+
+# target to build an object file
+rights.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/rights.cpp.o
+.PHONY : rights.cpp.o
+
+rights.i: rights.cpp.i
+.PHONY : rights.i
+
+# target to preprocess a source file
+rights.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/rights.cpp.i
+.PHONY : rights.cpp.i
+
+rights.s: rights.cpp.s
+.PHONY : rights.s
+
+# target to generate assembly for a file
+rights.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/rights.cpp.s
+.PHONY : rights.cpp.s
+
 superblock.o: superblock.cpp.o
 .PHONY : superblock.o
 
@@ -216,6 +240,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... rights.o"
+	@echo "... rights.i"
+	@echo "... rights.s"
 	@echo "... superblock.o"
 	@echo "... superblock.i"
 	@echo "... superblock.s"
