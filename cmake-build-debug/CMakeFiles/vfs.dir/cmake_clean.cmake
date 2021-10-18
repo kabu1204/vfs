@@ -1,5 +1,7 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/vfs.dir/inode.cpp.o"
   "CMakeFiles/vfs.dir/main.cpp.o"
+  "CMakeFiles/vfs.dir/superblock.cpp.o"
   "vfs"
   "vfs.pdb"
 )

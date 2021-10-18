@@ -80,7 +80,25 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/inode.cpp">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/inode.h">
+			<Option target="vfs"/>
+		</Unit>
 		<Unit filename="/Users/ycy/CLionProjects/vfs/main.cpp">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/main.h">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/superblock.cpp">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/superblock.h">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/types.h">
 			<Option target="vfs"/>
 		</Unit>
 		<Unit filename="/Users/ycy/CLionProjects/vfs/CMakeLists.txt">

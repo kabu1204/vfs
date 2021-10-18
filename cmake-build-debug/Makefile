@@ -129,6 +129,30 @@ vfs/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/build
 .PHONY : vfs/fast
 
+inode.o: inode.cpp.o
+.PHONY : inode.o
+
+# target to build an object file
+inode.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/inode.cpp.o
+.PHONY : inode.cpp.o
+
+inode.i: inode.cpp.i
+.PHONY : inode.i
+
+# target to preprocess a source file
+inode.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/inode.cpp.i
+.PHONY : inode.cpp.i
+
+inode.s: inode.cpp.s
+.PHONY : inode.s
+
+# target to generate assembly for a file
+inode.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/inode.cpp.s
+.PHONY : inode.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -153,6 +177,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+superblock.o: superblock.cpp.o
+.PHONY : superblock.o
+
+# target to build an object file
+superblock.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/superblock.cpp.o
+.PHONY : superblock.cpp.o
+
+superblock.i: superblock.cpp.i
+.PHONY : superblock.i
+
+# target to preprocess a source file
+superblock.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/superblock.cpp.i
+.PHONY : superblock.cpp.i
+
+superblock.s: superblock.cpp.s
+.PHONY : superblock.s
+
+# target to generate assembly for a file
+superblock.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/superblock.cpp.s
+.PHONY : superblock.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,9 +210,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... vfs"
+	@echo "... inode.o"
+	@echo "... inode.i"
+	@echo "... inode.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... superblock.o"
+	@echo "... superblock.i"
+	@echo "... superblock.s"
 .PHONY : help
 
 

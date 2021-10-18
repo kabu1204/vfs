@@ -3,4 +3,4 @@ project(vfs)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(vfs main.cpp)
+add_executable(vfs main.cpp superblock.cpp superblock.h inode.cpp inode.h types.h)
