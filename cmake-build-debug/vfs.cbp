@@ -8,108 +8,106 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug"/>
+				<Option working_dir="/Users/ycy/CLionProjects/vfs/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug"/>
+				<Option working_dir="/Users/ycy/CLionProjects/vfs/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug"/>
+				<Option working_dir="/Users/ycy/CLionProjects/vfs/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="vfs">
-				<Option output="/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/vfs" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug"/>
+				<Option output="/Users/ycy/CLionProjects/vfs/cmake-build-debug/vfs" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/ycy/CLionProjects/vfs/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="."/>
-					<Add directory="/usr/local/cpp-lib/boost/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
 					<Add directory="/System/Library/Frameworks"/>
 					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 vfs"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 vfs"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="vfs/fast">
-				<Option output="/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/vfs" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug"/>
+				<Option output="/Users/ycy/CLionProjects/vfs/cmake-build-debug/vfs" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/ycy/CLionProjects/vfs/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="."/>
-					<Add directory="/usr/local/cpp-lib/boost/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
 					<Add directory="/System/Library/Frameworks"/>
 					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 vfs/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 vfs/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/Users/ycy/CLionProjects/vfs/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/inode.cpp">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/inode.cpp">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/inode.h">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/inode.h">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/main.cpp">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/main.cpp">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/main.h">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/main.h">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/rights.cpp">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/rights.cpp">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/rights.h">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/rights.h">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/superblock.cpp">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/superblock.cpp">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/superblock.h">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/superblock.h">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/types.h">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/types.h">
 			<Option target="vfs"/>
 		</Unit>
-		<Unit filename="/Users/ycy/Documents/CLionProjects/vfs/CMakeLists.txt">
+		<Unit filename="/Users/ycy/CLionProjects/vfs/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

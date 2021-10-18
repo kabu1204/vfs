@@ -1,6 +1,8 @@
 #include "superblock.h"
 #include "types.h"
+#include <utility>
 #include <cstdio>
+#include ""
 
 
 superblock_c::superblock_c(ulong _superblock_start_addr, ulong _max_space, ulong _block_size, ulong _inode_num) {
@@ -15,6 +17,7 @@ superblock_c::superblock_c(ulong _superblock_start_addr, ulong _max_space, ulong
     s_block.free_inode_num = s_block.max_inode_num;
 
     s_block.superblock_start_addr = _superblock_start_addr;
+    s_block.last_p = 0;
 }
 
 void superblock_c::print() {
@@ -34,12 +37,34 @@ void superblock_c::print() {
     std::printf("-------Superblock Info-------");
 }
 
-ulong superblock_c::alloc_n_blocks(ulong n) {
+std::pair<std::vector<ulong>, bool> superblock_c::alloc_n_blocks(ushort n) {
     /*
      * 接口：
      *   安全地申请n个磁盘块，可供外部调用。
+     *   ret.second为false时，申请失败。
      */
-    return 0;
+    std::pair<std::vector<ulong>, bool> ret(std::vector<ulong>(), false);
+
+    if(n>MAX_BLOCKS_PER_NODE) return ret;       // n不能超过每个i节点能索引的最大磁盘块数量
+    if(n>s_block.free_block_num) return ret;    // n不能大于剩余block数量
+
+    std::pair<ulong, bool> res;
+    for(ushort i=0; i<n; ++i)
+    {
+        res = alloc_block();
+        if(res.second){
+            ret.first.push_back(res.first);
+        }
+        else{
+            // 分配失败，开始回滚
+            for(unsigned long & block_id : ret.first) {
+                assert(reclaim_block(block_id));
+            }
+            return ret;
+        }
+    }
+    ret.second = true;
+    return ret;
 }
 
 void superblock_c::_alloc_blocks_addr(ulong n, ulong start_addr) {
@@ -57,4 +82,73 @@ void superblock_c::_write_bin(const char *s, ulong n, ulong start_addr) {
      *   从start_addr处开始将n字节的s写入磁盘
      */
 
+}
+
+std::pair<ulong, bool> superblock_c::alloc_block() {
+    /*
+     * 接口：
+     *   安全地选择并返回一个未分配的磁盘块号
+     *   首先检查是否有回收的暂存磁盘块号可以分配，若没有才检索bitmap来获取可用块号
+     *   返回值为(0, false)时表示分配失败
+     */
+    std::pair<ulong, bool> ret(0, false);
+    if(s_block.free_block_num==0) return ret;
+
+    if(!reclaimed_blocks.empty())
+    {
+        // 若reclaimed_blocks非空，则有暂存的磁盘块可以立马分配，无需再查bitmap
+        ulong block_id = reclaimed_blocks.back();
+        reclaimed_blocks.pop_back();
+        s_block.bitmap.set(block_id);   // bitmap置1，代表已分配
+        s_block.last_p = block_id;
+        s_block.free_block_num -= 1;
+        ret.first = block_id;
+        ret.second = true;
+        return ret;
+    }
+
+    for(ulong i=s_block.last_p; i<s_block.max_block_num; ++i) {
+        // 先从last_p处向后找
+        if (!s_block.bitmap.test(i)) {
+            s_block.bitmap.set(i);
+            s_block.last_p = i;
+            s_block.free_block_num -= 1;
+            ret.first = i;
+            ret.second = true;
+            return ret;
+        }
+    }
+
+    // 若last_p之后没有空闲块号，则向前找
+    for(ulong i=s_block.last_p; i>=0; --i)
+    {
+        if (!s_block.bitmap.test(i)) {
+            s_block.bitmap.set(i);
+            s_block.last_p = i;
+            s_block.free_block_num -= 1;
+            ret.first = i;
+            ret.second = true;
+            return ret;
+        }
+    }
+
+    return ret;
+}
+
+bool superblock_c::reclaim_block(ulong block_id) {
+    /*
+     * 接口：
+     *   回收block_id对应的磁盘块
+     *   TODO: 是否需要用'\0'覆写block区域
+     */
+    if(block_id>=s_block.max_block_num || block_id<0) return false;   // 非法的block_id
+    if(!s_block.bitmap.test(block_id))  return false;   // 要回收的磁盘块是未分配状态；
+
+
+    reclaimed_blocks.push_back(block_id);
+    s_block.bitmap.reset(block_id);
+    s_block.free_block_num += 1;
+    s_block.free_space += s_block.block_size;
+
+    return true;
 }
