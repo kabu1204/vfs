@@ -1,12 +1,8 @@
-//
-// Created by yuchengye on 2021/10/18.
-//
-
 #ifndef VFS_SUPERBLOCK_H
+#define VFS_SUPERBLOCK_H
 #include "types.h"
 #include <bitset>
 #include <vector>
-#define VFS_SUPERBLOCK_H
 
 #pragma pack(1)
 struct superblock{

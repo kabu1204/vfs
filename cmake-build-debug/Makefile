@@ -57,10 +57,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/ycy/CLionProjects/vfs
+CMAKE_SOURCE_DIR = /Users/ycy/Documents/CLionProjects/vfs
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/ycy/CLionProjects/vfs/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles /Users/ycy/CLionProjects/vfs/cmake-build-debug//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -128,6 +128,30 @@ vfs: cmake_check_build_system
 vfs/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/build
 .PHONY : vfs/fast
+
+dir.o: dir.cpp.o
+.PHONY : dir.o
+
+# target to build an object file
+dir.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/dir.cpp.o
+.PHONY : dir.cpp.o
+
+dir.i: dir.cpp.i
+.PHONY : dir.i
+
+# target to preprocess a source file
+dir.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/dir.cpp.i
+.PHONY : dir.cpp.i
+
+dir.s: dir.cpp.s
+.PHONY : dir.s
+
+# target to generate assembly for a file
+dir.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/dir.cpp.s
+.PHONY : dir.cpp.s
 
 inode.o: inode.cpp.o
 .PHONY : inode.o
@@ -234,6 +258,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... vfs"
+	@echo "... dir.o"
+	@echo "... dir.i"
+	@echo "... dir.s"
 	@echo "... inode.o"
 	@echo "... inode.i"
 	@echo "... inode.s"

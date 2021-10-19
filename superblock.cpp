@@ -2,7 +2,6 @@
 #include "types.h"
 #include <utility>
 #include <cstdio>
-#include ""
 
 
 superblock_c::superblock_c(ulong _superblock_start_addr, ulong _max_space, ulong _block_size, ulong _inode_num) {
@@ -120,7 +119,7 @@ std::pair<ulong, bool> superblock_c::alloc_block() {
     }
 
     // 若last_p之后没有空闲块号，则向前找
-    for(ulong i=s_block.last_p; i>=0; --i)
+    for(ulong i=s_block.last_p-1; i>=0; --i)
     {
         if (!s_block.bitmap.test(i)) {
             s_block.bitmap.set(i);

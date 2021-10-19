@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/vfs.dir/dir.cpp.o"
   "CMakeFiles/vfs.dir/inode.cpp.o"
   "CMakeFiles/vfs.dir/main.cpp.o"
   "CMakeFiles/vfs.dir/rights.cpp.o"

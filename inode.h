@@ -1,19 +1,18 @@
-//
-// Created by yuchengye on 2021/10/18.
-//
-
 #ifndef VFS_INODE_H
+#define VFS_INODE_H
 #include "types.h"
 #include <string>
 #include <future>
-#include "thread"
+#include <vector>
+#include <thread>
+#include <map>
 #include "superblock.h"
-#define VFS_INODE_H
 
 #pragma pack(1)
-struct MetaData
+struct inode
 {
     bool allocated = false;         // 标识该i节点是否已被分配
+    ushort id = 0;            // i节点号
     FILE_TYPE fileType = NORMAL;     // 文件类型
     ulong fileSize = 0;         // 文件总字节数
     ulong fileSpace = 0;        // 文件所占空间
@@ -31,13 +30,23 @@ struct MetaData
 #pragma pack()
 
 
-class inode {
+class inode_ {
 public:
-    MetaData metaData;
     inode(char _filename[MAX_FILENAME_LEN], ushort _owner, ushort _group, FILE_TYPE _filetype, superblock_c* spb);
     ~inode();
 private:
     bool _del(superblock_c* spb);
+};
+
+class inode_mgmt{
+public:
+    ushort free_inode_num;                  // 可分配的i节点数
+    std::map<ushort, inode> in_mem_inodes;  // 已分配的inode，调入内存中
+    std::vector<ushort> reclaimed_inodes;   // 暂存已释放的inodes的节点号，以便快速分配
+    std::bitset<MAX_INODE_NUM> bitmap;      // i节点的位图
+    ushort last_p;                          // 记录上次分配的i节点号
+    std::pair<ushort, bool> alloc_inode();
+
 };
 
 
