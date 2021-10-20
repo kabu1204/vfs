@@ -254,6 +254,10 @@ inode_mgmt::mkfile(char *_filename, unsigned short prev_inode, unsigned short _o
 }
 
 bool inode_mgmt::write_data(unsigned short inode_id, char *data, uint32 n) {
+    /*
+     * 内部方法：
+     *   将data写入inode_id对应的磁盘块中
+     */
     ushort n_blocks = (n % BLOCK_SIZE == 0) ? n/BLOCK_SIZE : n/BLOCK_SIZE + 1;
     if(n_blocks > MAX_BLOCKS_PER_NODE){
         std::cerr<<"File size too big!\n";
@@ -314,7 +318,7 @@ inode_mgmt::open(ushort inode_id, ushort _uid, ushort _gid) {
      *   申请打开i节点所指向的文件(NORMAL类型)， 返回读写权限。
      *   供友元类vfstream调用
      */
-    std::pair<std::string , bool> ret(0, false);
+    std::pair<std::string , bool> ret(nullptr, false);
 
     inode& curr_inode = in_mem_inodes[inode_id];
     std::string right;
@@ -347,7 +351,7 @@ inode_mgmt::open(ushort inode_id, ushort _uid, ushort _gid) {
 std::pair<dir_entry, bool>
 inode_mgmt::read_dir_entry(ushort inode_id, unsigned short _uid, unsigned short _gid) {
     /*
-     * 接口：
+     * 内部方法：
      *  读取并返回inode_id对应的目录项
      *  会审查权限，具有读权限才可以获取目录项
      */
@@ -381,5 +385,35 @@ inode_mgmt::read_dir_entry(ushort inode_id, unsigned short _uid, unsigned short 
     }
 
     return ret;
+}
+
+
+/*
+ * 内部方法：
+ *   读取inode_id对应的磁盘块的所有数据到dst中。
+ *   供vfstream友元类调用
+ *   返回读取的字节数
+ */
+size_t inode_mgmt::read(ushort inode_id, char* dst) {
+    /*
+     * 内部方法：
+     *   读取inode_id对应的磁盘块的所有数据到dst中。
+     *   供vfstream友元类调用
+     *   返回读取的字节数
+     */
+    inode &curr_inode = in_mem_inodes[inode_id];
+    size_t n = curr_inode.fileSize;
+
+    uint32 block_id;
+    uint32 start_addr;
+    ushort size;
+    for(ushort i=0;i<curr_inode.allocated_block_n;++i){
+        block_id = curr_inode.blocks[i];        // 当前读取的block
+        size = std::min<uint32>(BLOCK_SIZE, n-i*BLOCK_SIZE);     // 当前读取的字节数
+        start_addr = block_id*BLOCK_SIZE;        // 当前读取的block的起始地址
+        io_context->read_s(dst+i*BLOCK_SIZE, start_addr, size);
+    }
+
+    return n;
 }
 
