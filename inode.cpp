@@ -1,12 +1,14 @@
 #include "inode.h"
 #include "superblock.h"
 #include "dir_entry.h"
+#include "util.h"
 #include <iostream>
 #include <cstring>
 #include <ctime>
 #include <utility>
 #include <algorithm>
 #include <cstdlib>
+#include <string>
 
 std::pair<ushort, bool> inode_mgmt::alloc_inode() {
     /*
@@ -303,5 +305,81 @@ bool inode_mgmt::write_data(unsigned short inode_id, char *data, uint32 n) {
     curr_inode.mtime = time(nullptr);
 
     return true;
+}
+
+std::pair<std::string, bool>
+inode_mgmt::open(ushort inode_id, ushort _uid, ushort _gid) {
+    /*
+     * 内部方法：
+     *   申请打开i节点所指向的文件(NORMAL类型)， 返回读写权限。
+     *   供友元类vfstream调用
+     */
+    std::pair<std::string , bool> ret(0, false);
+
+    inode& curr_inode = in_mem_inodes[inode_id];
+    std::string right;
+    if(_uid!=curr_inode.owner)
+    {
+        // 不是所有者
+        if(curr_inode.group==_gid)
+        {
+            // 同group
+            right = mode2str(curr_inode.mode)[1];
+            ret.first = right;
+            ret.second = true;
+            return ret;
+        }
+        else{
+            // 不同group
+            right = mode2str(curr_inode.mode)[2];
+        }
+    }
+    else{
+        // 是所有者
+        right = mode2str(curr_inode.mode)[0];
+    }
+    ret.first = right;
+    ret.second = true;
+    return ret;
+
+}
+
+std::pair<dir_entry, bool>
+inode_mgmt::read_dir_entry(ushort inode_id, unsigned short _uid, unsigned short _gid) {
+    /*
+     * 接口：
+     *  读取并返回inode_id对应的目录项
+     *  会审查权限，具有读权限才可以获取目录项
+     */
+    dir_entry t(0, 0);
+    std::pair<dir_entry, bool> ret(t, false);
+
+    inode& curr_inode = in_mem_inodes[inode_id];
+
+    if(curr_inode.fileType!=DIR){
+        // inode_id指向的文件并不是目录项
+        std::cerr<<curr_inode.fileName<<" is not a dir!\n";
+        return ret;
+    }
+
+    auto res = open(inode_id, _uid, _gid);      // 返回读写权限
+    if(!res.second){
+        std::cerr<<"Failed to fetch rights!\n";
+        return ret;
+    }
+
+    if(res.first[0]=='1'){
+        // 具有读权限
+        uint32 block_id = curr_inode.blocks[0];
+        io_context->read_s((char *)&t, block_id*BLOCK_SIZE, sizeof(t));
+        ret.first = t;
+        ret.second = true;
+    }
+    else{
+        std::cerr<<"Permission denied: you have no read access to the dir:"<<curr_inode.fileName<<"\n";
+        ret.second = false;
+    }
+
+    return ret;
 }
 

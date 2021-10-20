@@ -57,10 +57,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/ycy/CLionProjects/vfs
+CMAKE_SOURCE_DIR = /Users/ycy/Documents/CLionProjects/vfs
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/ycy/CLionProjects/vfs/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles /Users/ycy/CLionProjects/vfs/cmake-build-debug//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ycy/Documents/CLionProjects/vfs/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -273,29 +273,53 @@ superblock.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/superblock.cpp.s
 .PHONY : superblock.cpp.s
 
-vfsteam.o: vfsteam.cpp.o
-.PHONY : vfsteam.o
+util.o: util.cpp.o
+.PHONY : util.o
 
 # target to build an object file
-vfsteam.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/vfsteam.cpp.o
-.PHONY : vfsteam.cpp.o
+util.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/util.cpp.o
+.PHONY : util.cpp.o
 
-vfsteam.i: vfsteam.cpp.i
-.PHONY : vfsteam.i
+util.i: util.cpp.i
+.PHONY : util.i
 
 # target to preprocess a source file
-vfsteam.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/vfsteam.cpp.i
-.PHONY : vfsteam.cpp.i
+util.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/util.cpp.i
+.PHONY : util.cpp.i
 
-vfsteam.s: vfsteam.cpp.s
-.PHONY : vfsteam.s
+util.s: util.cpp.s
+.PHONY : util.s
 
 # target to generate assembly for a file
-vfsteam.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/vfsteam.cpp.s
-.PHONY : vfsteam.cpp.s
+util.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/util.cpp.s
+.PHONY : util.cpp.s
+
+vfstream.o: vfstream.cpp.o
+.PHONY : vfstream.o
+
+# target to build an object file
+vfstream.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/vfstream.cpp.o
+.PHONY : vfstream.cpp.o
+
+vfstream.i: vfstream.cpp.i
+.PHONY : vfstream.i
+
+# target to preprocess a source file
+vfstream.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/vfstream.cpp.i
+.PHONY : vfstream.cpp.i
+
+vfstream.s: vfstream.cpp.s
+.PHONY : vfstream.s
+
+# target to generate assembly for a file
+vfstream.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/vfstream.cpp.s
+.PHONY : vfstream.cpp.s
 
 # Help Target
 help:
@@ -324,9 +348,12 @@ help:
 	@echo "... superblock.o"
 	@echo "... superblock.i"
 	@echo "... superblock.s"
-	@echo "... vfsteam.o"
-	@echo "... vfsteam.i"
-	@echo "... vfsteam.s"
+	@echo "... util.o"
+	@echo "... util.i"
+	@echo "... util.s"
+	@echo "... vfstream.o"
+	@echo "... vfstream.i"
+	@echo "... vfstream.s"
 .PHONY : help
 
 

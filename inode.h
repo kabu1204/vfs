@@ -8,7 +8,8 @@
 #include <map>
 #include "superblock.h"
 #include "ioservice.h"
-#include "vfstream.h"
+#include "users.h"
+#include "dir_entry.h"
 
 #pragma pack(1)
 struct inode
@@ -43,20 +44,19 @@ public:
     superblock_c* spb;                      // 超级块
     ioservice* io_context;                  // 读写服务
 
-    friend class vfstream;                  // 声明vfstream为友元类
-
     explicit inode_mgmt(superblock_c *_spb, ioservice *_io_context);
     bool load_inode(ushort inode_id);
     bool store_inode(ushort inode_id);
     std::pair<ushort, bool> mkdir(char _filename[MAX_FILENAME_LEN], ushort prev_inode, ushort _owner, ushort _group);
     std::pair<ushort, bool> mkfile(char _filename[MAX_FILENAME_LEN], ushort prev_inode, ushort _owner, ushort _group);
     std::pair<ushort, bool> new_file(char _filename[MAX_FILENAME_LEN], ushort _owner, ushort _group, FILE_TYPE _filetype);
+    std::pair<std::string, bool> open(ushort inode_id, ushort _uid, ushort _gid);
+    std::pair<dir_entry, bool> read_dir_entry(ushort inode_id, ushort _uid, ushort _gid);
 
 private:
     bool reclaim_inode(ushort inode_id);
     std::pair<ushort, bool> alloc_inode();  // 分配一个i节点
     bool write_data(ushort inode_id, char *data, uint32 n);
-    std::pair<int, bool> open(char _filepath[MAX_FILENAME_LEN], ushort _owner, ushort _group, FILE_TYPE _filetype);
 
 };
 

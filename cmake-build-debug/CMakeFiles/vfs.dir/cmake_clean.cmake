@@ -5,7 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/vfs.dir/main.cpp.o"
   "CMakeFiles/vfs.dir/rights.cpp.o"
   "CMakeFiles/vfs.dir/superblock.cpp.o"
-  "CMakeFiles/vfs.dir/vfsteam.cpp.o"
+  "CMakeFiles/vfs.dir/util.cpp.o"
+  "CMakeFiles/vfs.dir/vfstream.cpp.o"
   "vfs"
   "vfs.pdb"
 )

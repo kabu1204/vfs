@@ -3,6 +3,8 @@
 #include <string>
 #include <cstring>
 #include "types.h"
+#include "inode.h"
+
 
 /*
  * 类：
@@ -12,17 +14,23 @@
 
 class vfstream {
 public:
-    vfstream();
-    vfstream(char path[MAX_FILENAME_LEN], std::string mode);
+    vfstream(inode_mgmt *_inode_manager, ushort _uid, ushort _gid);
+    vfstream(inode_mgmt *_inode_manager, char path[128], char mode, ushort _uid, ushort _gid);
     size_t read(char *buffer, size_t n);
     size_t write(char *buffer, size_t n);
     bool open(char path[MAX_FILENAME_LEN], char mode);
     void close();
     bool is_open();
 private:
-    std::string _buffer;    // 缓冲区
-    bool opened;            // 状态
-    size_t p;               // 读写指针
+    inode_mgmt* inode_manager;   // i节点管理器，用于向其申请读写权限，调用其接口
+    std::string _buffer;         // 缓冲区
+    bool opened;                 // 状态
+    size_t p;                    // 读写指针
+    ushort uid;                  // 用户uid
+    ushort gid;                  // 用户所属group id
+    bool can_read;               // 读权限
+    bool can_write;              // 写权限
+    ushort inode_id;             // 当前读写文件的inode_id
 };
 
 

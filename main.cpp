@@ -1,15 +1,14 @@
 #include "main.h"
 #include "types.h"
-#include "util.h"
 #include "superblock.h"
 #include "inode.h"
+#include "util.h"
 #include "ioservice.h"
 #include "users.h"
 #include <iostream>
 #include <string>
 #include <cstdio>
 
-std::vector<inode> in_mem_inodes;
 
 int Init(inode_mgmt *&inode_manager, ioservice *&io_context, superblock_c *&spb);
 
@@ -26,11 +25,13 @@ void simdisk(inode_mgmt *inode_manager, superblock_c *spb);
 void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager, superblock_c *spb);
 
 int main() {
-    ioservice *io_context = nullptr;        // 读写服务
-    inode_mgmt *inode_manager = nullptr;    // i节点管理器
-    superblock_c *spb = nullptr;            // 超级块管理器
-    Init(inode_manager, io_context, spb);   // 初始化磁盘
-    return 0;
+    auto res = split("/dir1/","/");
+    std::cout<<res.size()<<"\n"<<res[0];
+//    ioservice *io_context = nullptr;        // 读写服务
+//    inode_mgmt *inode_manager = nullptr;    // i节点管理器
+//    superblock_c *spb = nullptr;            // 超级块管理器
+//    Init(inode_manager, io_context, spb);   // 初始化磁盘
+//    return 0;
 }
 
 void simdisk(inode_mgmt *inode_manager, superblock_c *spb) {

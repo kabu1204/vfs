@@ -11,13 +11,16 @@ CMakeFiles/vfs.dir/inode.cpp.o: \
  ../inode.h \
  ../ioservice.h \
  ../superblock.h \
- ../types.h
+ ../types.h \
+ ../users.h \
+ ../util.h
 CMakeFiles/vfs.dir/ioservice.cpp.o: \
  ../ioservice.cpp \
  ../ioservice.h \
  ../superblock.h \
  ../types.h
 CMakeFiles/vfs.dir/main.cpp.o: \
+ ../dir_entry.h \
  ../inode.h \
  ../ioservice.h \
  ../main.cpp \
@@ -33,3 +36,22 @@ CMakeFiles/vfs.dir/superblock.cpp.o: \
  ../superblock.cpp \
  ../superblock.h \
  ../types.h
+CMakeFiles/vfs.dir/util.cpp.o: \
+ ../dir_entry.h \
+ ../inode.h \
+ ../ioservice.h \
+ ../superblock.h \
+ ../types.h \
+ ../users.h \
+ ../util.cpp \
+ ../util.h
+CMakeFiles/vfs.dir/vfstream.cpp.o: \
+ ../dir_entry.h \
+ ../inode.h \
+ ../ioservice.h \
+ ../superblock.h \
+ ../types.h \
+ ../users.h \
+ ../util.h \
+ ../vfstream.cpp \
+ ../vfstream.h

@@ -1,7 +1,3 @@
-//
-// Created by yuchengye on 2021/10/18.
-//
-
 #ifndef VFS_TYPES_H
 #define VFS_TYPES_H
 #include <cstdint>
@@ -18,7 +14,8 @@
 
 enum FILE_TYPE{
     NORMAL,
-    DIR
+    DIR,
+    LINK
 };
 
 #endif //VFS_TYPES_H
