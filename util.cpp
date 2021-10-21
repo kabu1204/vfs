@@ -106,18 +106,26 @@ std::string _hex2bin(ushort n){
     return "000";
 }
 
-std::vector<std::string> mode2str(const ushort mode){
+std::string mode2str(const ushort mode){
     /*
      * mode转读写执行权限的字符串
+     * 例如755转为"rwxr-xr-x"
      */
-    ushort everyone = mode%10;
-    ushort group = (mode/10)%10;
-    ushort self = (mode/100);
+    std::string mode_bin = hex2bin(mode);
+    std::string ret = "---------";
 
-    std::vector<std::string> ret;
-    ret.push_back(mode_num2bin(self));
-    ret.push_back(mode_num2bin(group));
-    ret.push_back(mode_num2bin(everyone));
+    for(ushort i=0;i<9;++i){
+        if(mode_bin[i]=='0') continue;
+        if(i%3==0){
+            ret[i] = 'r';
+        }
+        else if(i%3==1){
+            ret[i] = 'w';
+        }
+        else{
+            ret[i] = 'x';
+        }
+    }
 
     return ret;
 }
@@ -149,15 +157,17 @@ std::pair<std::vector<std::string>, bool> get_child_file(dir_entry entry, inode_
 }
 
 
-std::pair<ushort, bool> path2inode_id(const std::string& path, inode_mgmt* inode_manager, ushort _uid, ushort _gid){
+std::pair<ushort, bool>
+path2inode_id(const std::string &path, inode_mgmt *inode_manager, ushort _uid, ushort _gid, ushort back_n) {
     /*
      * 路径转i节点号，注意路径需要是全路径
+     * 如果back_n>0，则返回的是倒数第back_n级目录对应的i节点号
      * /dir1/dir2/
      */
     std::pair<ushort, bool> ret(0, false);
     std::vector<std::string> split_path = split(path, "/");
 
-    if(split_path.empty()){
+    if(split_path.empty() or (split_path.size()-back_n)<=0){
         // 说明是根目录
         ret.first = 0;
         ret.second = true;
@@ -172,7 +182,7 @@ std::pair<ushort, bool> path2inode_id(const std::string& path, inode_mgmt* inode
     }
     curr_dir_entry = res.first;
 
-    for(ushort idx=0; idx<split_path.size(); ++idx){
+    for(ushort idx=0; idx<split_path.size()-back_n; ++idx){
         // 循环获取文件目录及i节点
         std::string name = split_path[idx];
         auto res2 = get_child_file(curr_dir_entry, inode_manager);
@@ -186,7 +196,7 @@ std::pair<ushort, bool> path2inode_id(const std::string& path, inode_mgmt* inode
             // 查找目录名对应的i节点号
             if(filelist[i] == name){
                 ushort inode_id = curr_dir_entry.inode_arr[i];
-                if(idx==split_path.size()-1){
+                if(idx==split_path.size()-1-back_n){
                     ret.first = inode_id;
                     ret.second = true;
                     return ret;
@@ -225,14 +235,29 @@ std::pair<std::string, bool> concat_path(std::string a, std::string b){
     }
 
     // 去掉末尾的'/'
-    while(a.back()=='/') a.erase(a.end()-1);
-    while(b.back()=='/') b.erase(b.end()-1);
-
-    if(a[0]!='/'){
-        a = "./" + a;
-    }
+    a = format_path(a);
+    b = format_path(b);
 
     ret.first = a+"/"+b;
     ret.second = true;
     return ret;
+}
+
+std::string format_path(std::string _path){
+    /*
+     * 审查和格式化路径字符串
+     */
+    _path = trimed(_path);
+    if(_path[0] == '/'){
+        // 只留下最开头的一个'/'
+        while(_path[1] == '/') _path = _path.substr(1, _path.size() - 1);
+    }
+
+    // 去掉末尾的'/'
+    while(_path.back() == '/') _path.erase(_path.end() - 1);
+
+    if(_path[0] != '/'){
+        _path = "./" + _path;
+    }
+    return _path;
 }

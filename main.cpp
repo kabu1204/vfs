@@ -98,6 +98,9 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
         std::printf("vfs.disk\t%u\t%u\t%u\t%.2f%%\t%s",spb->s_block.max_block_num,used_block_num,spb->s_block.free_block_num,used_percent,root_dir_name);
     }
     else if(cmd == "cd"){
+        /*
+         * 改变当前工作目录
+         */
         std::string target_dir;
         if(argv==1){
             return;
@@ -110,15 +113,94 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
             if(!res.second) return; // 路径非法
             target_dir = res.first;
         }
-        auto res2 = path2inode_id(target_dir, inode_manager, user.uid, user.gid);
+        auto res2 = path2inode_id(target_dir, inode_manager, user.uid, user.gid, 0);
         if(!res2.second) return;    // 路径不存在或者没有权限
-        cwd = target_dir;           // 设置当前工作目录
         cwd_inode_id = res2.first;  // 设置当前工作目录的i节点号
+        cwd = inode_manager->get_full_path_of(cwd_inode_id, user.uid, user.gid).first;    // 设置当前工作目录
     }
     else if(cmd == "info"){
         spb->print();
     }
-    else if(cmd == "")
+    else if(cmd == "dir"){
+        /*
+         * 打印目录信息
+         */
+        ushort target_dir_inode_id;
+        if(argv==1) target_dir_inode_id = cwd_inode_id;
+        else{
+            std::string target_dir;
+            if(trimed(args[1])[0]=='/'){
+                target_dir = trimed(args[1]);
+            } else {
+                auto res = concat_path(cwd, args[1]);
+                if(!res.second) return; // 路径非法
+                target_dir = res.first;
+            }
+            auto res2 = path2inode_id(target_dir, inode_manager, user.uid, user.gid, 0);
+            if(!res2.second) return;    // 路径不存在或者没有权限
+            target_dir_inode_id = res2.first;
+            if(!inode_manager->isDir(target_dir_inode_id)){
+                std::cerr<<"The path is not a directory!";
+                return;
+            }
+        }
+        auto res3 = inode_manager->get_dir_entry(target_dir_inode_id, user.uid, user.gid);
+        if(!res3.second) return;    // 获取目录项失败
+        dir_entry& entry = res3.first;
+        ushort curr_inode_id;
+        std::printf("Protection\tAddr\tSize\tName");
+        for(ushort i=0;i<entry.fileNum+2;++i){
+            curr_inode_id = entry.inode_arr[i];
+            std::string protection_info = inode_manager->get_protection_code(curr_inode_id).first;
+            uint32 addr = inode_manager->get_addr_of(curr_inode_id).first;
+            size_t size = inode_manager->getsizeof(curr_inode_id);
+            std::string name = inode_manager->get_name_of(curr_inode_id).first;
+            if(i==0) name = ".";
+            if(i==1) name = "..";
+            std::printf("%s\t%u\t%d\t%s\n", protection_info.c_str(), addr, size, name.c_str());
+        }
+    }
+    else if(cmd == "md" or cmd == "mkdir"){
+        /*
+         * 创建目录
+         */
+        if(argv==0){
+            std::cout<<"usage: md|mkdir directory\n";
+            return;
+        }
+        std::string target_dir;
+        std::string formatted_path = format_path(args[1]);
+        if(formatted_path[0]=='/'){
+            target_dir = formatted_path;
+        }
+        else{
+            auto res = concat_path(cwd, formatted_path);
+            if(!res.second) return; // 路径非法
+            target_dir = res.first;
+        }
+        if(!inode_manager->mkdir(target_dir, user.uid, user.gid).second){
+            return;
+        }
+    }
+    else if(cmd == "rd"){
+        /*
+         * 删除目录
+         */
+        if(argv<2){
+            std::printf("usage: rd directory\n");
+            return;
+        }
+        std::string formatted_path = format_path(args[1]);
+        std::string target_dir;
+        if(formatted_path[0]=='/'){
+            target_dir = formatted_path;
+        }
+        else{
+            auto res = concat_path(cwd, formatted_path);
+            if(!res.second) return; // 路径非法
+            target_dir = res.first;
+        }
+    }
 }
 
 

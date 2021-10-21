@@ -47,7 +47,8 @@ public:
     ioservice* io_context;                  // 读写服务
 
     friend class vfstream;
-    friend std::pair<ushort, bool> path2inode_id(const std::string& path, inode_mgmt* inode_manager, ushort _uid, ushort _gid);
+    friend std::pair<ushort, bool>
+    path2inode_id(const std::string &path, inode_mgmt *inode_manager, ushort _uid, ushort _gid, ushort back_n);
 
     explicit inode_mgmt(superblock_c *_spb, ioservice *_io_context);
     ~inode_mgmt();
@@ -55,8 +56,16 @@ public:
     bool store_inode(ushort inode_id);
     std::pair<ushort, bool> mkdir(std::string _filepath, unsigned short _owner, unsigned short _group);
     std::pair<ushort, bool> mkfile(std::string _filepath, unsigned short _owner, unsigned short _group);
+    bool rmdir();
     size_t getsizeof(std::string _filepath, ushort _uid, ushort _gid);
+    size_t getsizeof(ushort inode_id);
     std::pair<std::string, bool> get_protection_code(unsigned short inode_id);
+    bool isAllocated(ushort inode_id);
+    bool isDir(ushort inode_id);
+    std::pair<dir_entry, bool> get_dir_entry(unsigned short inode_id, ushort _uid, ushort _gid);
+    std::pair<uint32, bool> get_addr_of(ushort inode_id);
+    std::pair<std::string, bool> get_name_of(ushort inode_id);
+    std::pair<std::string, bool> get_full_path_of(ushort inode_id, ushort _uid, ushort _gid);
 
 private:
     bool reclaim_inode(ushort inode_id);
@@ -66,8 +75,8 @@ private:
     std::pair<dir_entry, bool> read_dir_entry(ushort inode_id, ushort _uid, ushort _gid);
     size_t read(ushort inode_id, char* dst);
     std::pair<ushort, bool> new_file(std::string filename, ushort father_inode_id, ushort _owner, ushort _group, FILE_TYPE _filetype);
+    bool rm_file(std::string filename, ushort father_inode_id, ushort _uid, ushort _gid);
     std::pair<unsigned short, std::string> parse_path(std::string filepath, ushort _uid, ushort _gid);
-    size_t _getsizeof(ushort inode_id);
 
 
 };

@@ -55,7 +55,7 @@ bool vfstream::open(const std::string& path, char _mode) {
         return false;
     }
 
-    auto res = path2inode_id(path, inode_manager, uid, gid);
+    auto res = path2inode_id(path, inode_manager, uid, gid, 0);
     if(!res.second){
         std::cerr<<"Failed to get "<<path<<"\'s inode_id!\n";
         return false;

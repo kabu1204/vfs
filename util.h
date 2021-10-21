@@ -22,7 +22,7 @@ std::vector<std::string> split(const std::string& str, const std::string& delim)
 
 std::string mode_num2bin(ushort mode);
 
-std::vector<std::string> mode2str(ushort mode);
+std::string mode2str(ushort mode);
 
 std::string hex2bin(uint32 n);
 
@@ -34,8 +34,11 @@ std::pair<std::vector<std::string>, bool> get_child_file(dir_entry entry, inode_
 
 std::string get_protection_code(inode_mgmt* inode_manager);
 
-std::pair<ushort, bool> path2inode_id(const std::string& path, inode_mgmt* inode_manager, ushort _uid, ushort _gid);
+std::pair<ushort, bool>
+path2inode_id(const std::string &path, inode_mgmt *inode_manager, ushort _uid, ushort _gid, ushort back_n);
 
 std::pair<std::string, bool> concat_path(std::string a, std::string b);
+
+std::string format_path(std::string _path);
 
 #endif //VFS_UTIL_H
