@@ -5,6 +5,17 @@ CMakeFiles/vfs.dir/dir_entry.cpp.o: \
  ../dir_entry.cpp \
  ../dir_entry.h \
  ../types.h
+CMakeFiles/vfs.dir/init.cpp.o: \
+ ../dir_entry.h \
+ ../init.cpp \
+ ../init.h \
+ ../inode.h \
+ ../ioservice.h \
+ ../superblock.h \
+ ../types.h \
+ ../users.h \
+ ../util.h \
+ ../vfstream.h
 CMakeFiles/vfs.dir/inode.cpp.o: \
  ../dir_entry.h \
  ../inode.cpp \
@@ -20,6 +31,7 @@ CMakeFiles/vfs.dir/ioservice.cpp.o: \
  ../types.h
 CMakeFiles/vfs.dir/main.cpp.o: \
  ../dir_entry.h \
+ ../init.h \
  ../inode.h \
  ../ioservice.h \
  ../main.cpp \
@@ -32,6 +44,9 @@ CMakeFiles/vfs.dir/main.cpp.o: \
 CMakeFiles/vfs.dir/rights.cpp.o: \
  ../rights.cpp \
  ../rights.h
+CMakeFiles/vfs.dir/shell.cpp.o: \
+ ../shell.cpp \
+ ../shell.h
 CMakeFiles/vfs.dir/superblock.cpp.o: \
  ../ioservice.h \
  ../superblock.cpp \

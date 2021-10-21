@@ -153,6 +153,30 @@ dir_entry.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/dir_entry.cpp.s
 .PHONY : dir_entry.cpp.s
 
+init.o: init.cpp.o
+.PHONY : init.o
+
+# target to build an object file
+init.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/init.cpp.o
+.PHONY : init.cpp.o
+
+init.i: init.cpp.i
+.PHONY : init.i
+
+# target to preprocess a source file
+init.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/init.cpp.i
+.PHONY : init.cpp.i
+
+init.s: init.cpp.s
+.PHONY : init.s
+
+# target to generate assembly for a file
+init.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/init.cpp.s
+.PHONY : init.cpp.s
+
 inode.o: inode.cpp.o
 .PHONY : inode.o
 
@@ -249,6 +273,30 @@ rights.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/rights.cpp.s
 .PHONY : rights.cpp.s
 
+shell.o: shell.cpp.o
+.PHONY : shell.o
+
+# target to build an object file
+shell.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/shell.cpp.o
+.PHONY : shell.cpp.o
+
+shell.i: shell.cpp.i
+.PHONY : shell.i
+
+# target to preprocess a source file
+shell.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/shell.cpp.i
+.PHONY : shell.cpp.i
+
+shell.s: shell.cpp.s
+.PHONY : shell.s
+
+# target to generate assembly for a file
+shell.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/shell.cpp.s
+.PHONY : shell.cpp.s
+
 superblock.o: superblock.cpp.o
 .PHONY : superblock.o
 
@@ -333,6 +381,9 @@ help:
 	@echo "... dir_entry.o"
 	@echo "... dir_entry.i"
 	@echo "... dir_entry.s"
+	@echo "... init.o"
+	@echo "... init.i"
+	@echo "... init.s"
 	@echo "... inode.o"
 	@echo "... inode.i"
 	@echo "... inode.s"
@@ -345,6 +396,9 @@ help:
 	@echo "... rights.o"
 	@echo "... rights.i"
 	@echo "... rights.s"
+	@echo "... shell.o"
+	@echo "... shell.i"
+	@echo "... shell.s"
 	@echo "... superblock.o"
 	@echo "... superblock.i"
 	@echo "... superblock.s"

@@ -86,6 +86,12 @@
 		<Unit filename="/Users/ycy/CLionProjects/vfs/dir_entry.h">
 			<Option target="vfs"/>
 		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/init.cpp">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/init.h">
+			<Option target="vfs"/>
+		</Unit>
 		<Unit filename="/Users/ycy/CLionProjects/vfs/inode.cpp">
 			<Option target="vfs"/>
 		</Unit>
@@ -108,6 +114,12 @@
 			<Option target="vfs"/>
 		</Unit>
 		<Unit filename="/Users/ycy/CLionProjects/vfs/rights.h">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/shell.cpp">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/shell.h">
 			<Option target="vfs"/>
 		</Unit>
 		<Unit filename="/Users/ycy/CLionProjects/vfs/superblock.cpp">
