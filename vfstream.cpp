@@ -55,10 +55,21 @@ bool vfstream::open(const std::string& path, char _mode) {
         return false;
     }
 
-    auto res = path2inode_id(path, inode_manager, uid, gid, 0);
+    auto res = inode_manager->get_inode_id(path, uid, gid);
     if(!res.second){
-        std::cerr<<"Failed to get "<<path<<"\'s inode_id!\n";
-        return false;
+        if(mode=='w') {
+            // 覆盖写模式，不存在则尝试创建
+            auto res2 = inode_manager->mkfile(path, uid, gid);  // 尝试创建path
+            if(!res2.second){
+                std::cerr<<"No such file or directory: "<<path<<"\n";       // path非法或者不存在
+                return false;   // 说明path的上级目录也非法或不存在
+            }
+        }
+        else{
+            // 读模式和追加模式需要文件存在，因此直接返回错误
+            std::cerr<<"No such file or directory: "<<path<<"\n";       // path非法或者不存在
+            return false;
+        }
     }
     inode_id = res.first;
 
@@ -139,7 +150,7 @@ vfstream::vfstream(inode_mgmt *_inode_manager, ushort _uid, ushort _gid){
     written_size = 0;
 }
 
-vfstream::vfstream(inode_mgmt *_inode_manager, char path[128], char _mode, unsigned short _uid, unsigned short _gid) {
+vfstream::vfstream(inode_mgmt *_inode_manager, std::string path, char _mode, unsigned short _uid, unsigned short _gid) {
     /*
      * 初始化并打开
      */
@@ -160,7 +171,7 @@ vfstream::vfstream(inode_mgmt *_inode_manager, char path[128], char _mode, unsig
 size_t vfstream::read(char *dst, size_t n) {
     /*
      * 接口：
-     *   从读指针p处开始读取n个字节到dst中
+     *   从读指针p处开始读取最多n个字节到dst中
      *   会对n进行合法审查，返回实际读取到的字节数。
      */
     if(!can_read) return -1;
@@ -168,6 +179,7 @@ size_t vfstream::read(char *dst, size_t n) {
 
     uint32 size = std::min<uint32>(read_buffer_size - p, n);
     memcpy(dst, _read_buffer + p, size);
+    p = p + size;
 
     return size;
 }
@@ -193,6 +205,7 @@ size_t vfstream::write(char *src, size_t n) {
 
     memcpy(_write_buffer+p, src, n);
     written_size += n;
+    p = p + n;
 
     return n;
 }
@@ -216,5 +229,17 @@ bool vfstream::seekg(uint32_t addr) {
 }
 
 vfstream::~vfstream() {
+    /*
+     * 析构函数
+     */
     close();
+}
+
+bool vfstream::eof() {
+    /*
+     * 返回是否已读到文件结束
+     */
+    if(!opened) return false;
+    if(!can_read) return false;
+    return p==read_buffer_size;
 }

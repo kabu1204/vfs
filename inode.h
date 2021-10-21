@@ -56,16 +56,25 @@ public:
     bool store_inode(ushort inode_id);
     std::pair<ushort, bool> mkdir(std::string _filepath, unsigned short _owner, unsigned short _group);
     std::pair<ushort, bool> mkfile(std::string _filepath, unsigned short _owner, unsigned short _group);
-    bool rmdir();
+    bool rmfile(std::string filepath, ushort _uid, ushort _gid);
+    bool rmdir(std::string dirname, ushort father_inode_id, ushort _uid, ushort _gid);
+    bool rmdir(std::string path, ushort _uid, ushort _gid);
     size_t getsizeof(std::string _filepath, ushort _uid, ushort _gid);
     size_t getsizeof(ushort inode_id);
     std::pair<std::string, bool> get_protection_code(unsigned short inode_id);
     bool isAllocated(ushort inode_id);
     bool isDir(ushort inode_id);
+    std::pair<std::vector<ushort>, bool> open_dir_entry(ushort inode_id, ushort _uid, ushort _gid);
+    bool close_dir_entry(ushort inode_id, std::vector<ushort> child_node);
     std::pair<dir_entry, bool> get_dir_entry(unsigned short inode_id, ushort _uid, ushort _gid);
     std::pair<uint32, bool> get_addr_of(ushort inode_id);
     std::pair<std::string, bool> get_name_of(ushort inode_id);
     std::pair<std::string, bool> get_full_path_of(ushort inode_id, ushort _uid, ushort _gid);
+    std::pair<std::string, bool> get_full_path_of(std::string path, ushort _uid, ushort _gid);
+    std::pair<std::vector<std::string>, bool> get_child_filename(unsigned short inode_id, ushort _uid, ushort _gid);
+    std::pair<std::vector<std::string>, bool> get_child_filename(std::vector<ushort> child_inodes);
+    std::pair<unsigned short, bool> get_inode_id(std::string path, ushort _uid, ushort _gid, ushort back_n=0);
+    uint32_t check_and_correct();
 
 private:
     bool reclaim_inode(ushort inode_id);
@@ -74,11 +83,9 @@ private:
     std::pair<std::string, bool> open(ushort inode_id, ushort _uid, ushort _gid);
     std::pair<dir_entry, bool> read_dir_entry(ushort inode_id, ushort _uid, ushort _gid);
     size_t read(ushort inode_id, char* dst);
+    bool _rmfile(std::string filename, ushort father_inode_id, ushort _uid, ushort _gid);
     std::pair<ushort, bool> new_file(std::string filename, ushort father_inode_id, ushort _owner, ushort _group, FILE_TYPE _filetype);
-    bool rm_file(std::string filename, ushort father_inode_id, ushort _uid, ushort _gid);
     std::pair<unsigned short, std::string> parse_path(std::string filepath, ushort _uid, ushort _gid);
-
-
 };
 
 

@@ -49,6 +49,8 @@ public:
 
     std::pair<uint32, bool > alloc_block();
 
+    void check_and_correct(uint32 inode_held_blocks_n);
+
 private:
     std::vector<uint32> reclaimed_blocks;    // 回收的磁盘块暂存在这里，以便快速分配。
     ioservice *io_context;      // ioservice

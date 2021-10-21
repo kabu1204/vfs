@@ -74,6 +74,7 @@ std::pair<std::vector<uint32>, bool> superblock_c::alloc_n_blocks(ushort n) {
         }
     }
     ret.second = true;
+    store_superblock(); // 将超级块信息写回磁盘
     return ret;
 }
 
@@ -160,7 +161,7 @@ bool superblock_c::reclaim_block(uint32 block_id) {
     s_block.free_block_num += 1;
     s_block.free_space += s_block.block_size;
 
-
+    store_superblock();
     return true;
 }
 
@@ -195,4 +196,75 @@ void superblock_c::set_io_context(ioservice *_io_context) {
      *   设置io服务，用于读写磁盘，主要为了将superblock写回磁盘
      */
     io_context = _io_context;
+}
+
+void superblock_c::check_and_correct(uint32 inode_held_blocks_n) {
+    /*
+     * 接口：
+     *   检查超级块区的一致性
+     */
+    std::cout<<"Start checking consistency of superblock area...\n";
+    superblock tmp;
+    uint32 differences=0;
+    io_context->read((char *)&tmp, s_block.superblock_start_addr, sizeof(tmp));
+
+    std::cout<<"[check]max_space"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.max_space==s_block.max_space) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]block_size"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.block_size==s_block.block_size) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]max_block_num"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.max_block_num==s_block.max_block_num) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]max_inode_num"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.max_inode_num==s_block.max_inode_num) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]available_space"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.available_space==s_block.available_space) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]free_space"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.free_space==s_block.free_space) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]free_inode_num"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.free_inode_num==s_block.free_inode_num) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]free_block_num"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.free_block_num==s_block.free_block_num) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]superblock_start_addr"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.superblock_start_addr==s_block.superblock_start_addr) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]superblock_size"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.superblock_size==s_block.superblock_size) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]inode_start_addr"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.inode_start_addr==s_block.inode_start_addr) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]root_dir_start_addr"<<std::setfill('-')<<"\t\t\t";
+    if(tmp.root_dir_start_addr==s_block.root_dir_start_addr) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    std::cout<<"[check]bitmap XOR"<<std::setfill('-')<<"\t\t\t";
+    if((tmp.bitmap^s_block.bitmap).none()) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=(tmp.bitmap^s_block.bitmap).count();
+
+    std::cout<<"[check]allocated blocks vs inode held blocks"<<std::setfill('-')<<"\t\t\t";
+    if((s_block.max_block_num-s_block.free_block_num-s_block.root_dir_start_addr/BLOCK_SIZE)==inode_held_blocks_n) std::cout<<"ok\n";
+    else std::cout<<"miss\n", differences+=1;
+
+    store_superblock();
+
+    std::printf("%.2f%% consistency; %u differences corrected", 100*(1-double(differences)/(13+MAX_SPACE/BLOCK_SIZE)), differences);
 }

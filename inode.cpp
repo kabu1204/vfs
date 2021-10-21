@@ -149,6 +149,7 @@ inode_mgmt::new_file(std::string filename, ushort father_inode_id, ushort _owner
         // 更新父i节点的属性
         in_mem_inodes[father_inode_id].atime = time(nullptr);
         in_mem_inodes[father_inode_id].mtime = time(nullptr);
+        store_inode(father_inode_id);   // 更新磁盘上的i节点信息
         // 将更新后的父目录项写回磁盘
         if(!write_data(father_inode_id, (char *)&father_entry, sizeof(father_entry))){
             std::cerr<<"Failed to write updated father directory entry to disk!\n";
@@ -242,7 +243,12 @@ bool inode_mgmt::reclaim_inode(ushort inode_id) {
 
     in_mem_inodes[inode_id].allocated = false;      // 状态置为未分配
     store_inode(inode_id);                          // 写回磁盘，否则下次初始化可能会读到错误状态
-    for(uint32 )
+    for(ushort i=0;i<in_mem_inodes[inode_id].allocated_block_n;++i){
+        if(!spb->reclaim_block(in_mem_inodes[inode_id].blocks[i])){
+            std::cerr<<"Failed to reclaim block\n";
+            return false;
+        }
+    }
 
     in_mem_inodes.erase(inode_id);                  // 释放内存
 
@@ -292,6 +298,7 @@ inode_mgmt::mkdir(std::string _filepath, unsigned short _owner, unsigned short _
 
     inode& curr_inode = in_mem_inodes[inode_id];
     curr_inode.fileSize = sizeof(new_dir);
+    store_inode(inode_id);   // 更新磁盘上的i节点信息
     ret.first = inode_id;
     ret.second = true;
 
@@ -389,6 +396,7 @@ bool inode_mgmt::write_data(unsigned short inode_id, char *data, uint32 n) {
     curr_inode.fileSize = n;
     curr_inode.fileSpace = n_blocks*BLOCK_SIZE;
     curr_inode.mtime = time(nullptr);
+    store_inode(inode_id);   // 更新磁盘上的i节点信息
 
     return true;
 }
@@ -423,7 +431,7 @@ inode_mgmt::open(ushort inode_id, ushort _uid, ushort _gid) {
         // 是所有者
         mode_bin = mode_bin.substr(0, 3);
     }
-    curr_inode.atime = time(nullptr);   // 更新i节点的上次打开时间
+    curr_inode.atime = time(nullptr);   // 更新i节点指向文件的上次打开时间
     ret.first = mode_bin;
     ret.second = true;
     return ret;
@@ -498,14 +506,18 @@ size_t inode_mgmt::read(ushort inode_id, char* dst) {
         io_context->read_s(dst+i*BLOCK_SIZE, start_addr, size);
     }
 
+    curr_inode.atime = time(nullptr);
+    store_inode(inode_id);   // 更新磁盘上的i节点信息
+
+
     return n;
 }
 
 std::pair<ushort, std::string> inode_mgmt::parse_path(std::string filepath, ushort _uid, ushort _gid) {
     /*
      * 内部方法：
-     *   解析filepath，返回<父目录路径, filepath所指路径的文件名/目录名>
-     *   如filepath="/dir1/1.txt"时，返回<"/dir1", "1.txt">
+     *   解析filepath，返回<父目录i节点号, filepath所指路径的文件名/目录名>
+     *   如filepath="/dir1/1.txt"时，返回<"/dir1"的i节点号, "1.txt">
      */
     std::pair<ushort, std::string> ret(0, "");
     std::string filename;
@@ -533,13 +545,28 @@ std::pair<ushort, std::string> inode_mgmt::parse_path(std::string filepath, usho
 
     if(filename!="/"){
         // 获取父目录对应的i节点
-        auto res = path2inode_id(father_dir, this, _uid, _gid, 0);
+        auto res = get_inode_id(father_dir, _uid, _gid, 0);
         if(!res.second){
             std::cerr<<"Failed to get inode for the path: "<<father_dir<<"\n";
             return ret;
         }
         father_inode_id = res.first;
+        std::vector<ushort> child_list = open_dir_entry(father_inode_id, _uid, _gid).first;
+        bool flag = true;
+        for(auto inode_id:child_list){
+            if(get_name_of(inode_id).first==filename){
+                // 如果父节点的子文件中有filename，则flag置为false；
+                flag = false;
+                break;
+            }
+        }
+        if(flag){
+            // flag没变，代表filename不存在；
+            std::cerr<<"No such file or directory: "<<filepath<<"\n";
+            return ret;
+        }
     }
+
 
     ret.first = father_inode_id;
     ret.second = filename;
@@ -696,29 +723,323 @@ std::pair<std::string, bool> inode_mgmt::get_full_path_of(ushort inode_id, ushor
 }
 
 bool
-inode_mgmt::rm_file(std::string filename, ushort father_inode_id, ushort _uid, ushort _gid) {
+inode_mgmt::_rmfile(std::string filename, ushort father_inode_id, ushort _uid, ushort _gid) {
     /*
      * 内部方法：
      *   删除father_inode_id对应的目录下一个名为filename的文件，非递归方式。如果文件是非空的目录，则不会删除
      */
-    auto res = read_dir_entry(father_inode_id, _uid, _gid);
+    auto res = open_dir_entry(father_inode_id, _uid, _gid);
     if(!res.second) return false;   // 获取目录项失败，删除失败
-    dir_entry father_entry = res.first;
+    std::vector<ushort> child_inodes = res.first;
 
-    for(ushort i=0;i<father_entry.fileNum;++i){
-        ushort inode_id = father_entry.inode_arr[i+2];
+    for(auto it= child_inodes.begin() + 2; it != child_inodes.end(); it++){
+        ushort inode_id = *it;
         auto res2 = get_name_of(inode_id);
         if(!res2.second) return false;  // 获取文件名失败
         if(res2.first == filename){
             if(in_mem_inodes[inode_id].fileType==DIR)
             {
-                res = read_dir_entry(inode_id, _uid, _gid);
-                if(!res.second) return false;   // 获取目录项失败
-                if(res.first.fileNum!=0) return false;  // 非空目录，删除失败
+                auto res2 = read_dir_entry(inode_id, _uid, _gid);
+                if(!res2.second) return false;   // 获取目录项失败
+                if(res2.first.fileNum!=0) return false;  // 非空目录，删除失败
+            }
+            if(!reclaim_inode(inode_id)){   // 释放i节点失败
+                std::cerr<<"Failed to remove file!\n";
+                return false;
+            }
+            else{
+                // 更新父目录项的属性
+                child_inodes.erase(it);
+                in_mem_inodes[father_inode_id].atime = time(nullptr);   // 文件打开时间
+                in_mem_inodes[father_inode_id].mtime = time(nullptr);   // 文件修改时间
+                store_inode(father_inode_id);   // 更新磁盘上的i节点信息
+                // 将更新后的父目录项写回磁盘
+                if(!close_dir_entry(father_inode_id, child_inodes)){
+                    std::cerr<<"Failed to write updated father directory entry to disk!\n";
+                    return false;
+                }
+                store_inode(father_inode_id);   // 更新磁盘上的i节点信息
+                return true;
             }
         }
     }
 
+    std::cerr<<"No such file or directory: "<<filename<<"!\n";  // 说明在父目录下没找到该文件
     return false;
+}
+
+std::pair<std::vector<ushort>, bool>
+inode_mgmt::open_dir_entry(unsigned short inode_id, unsigned short _uid, unsigned short _gid) {
+    /*
+     * 接口：
+     *   打开目录项，返回的vector存储了目录的子i节点，包含当前目录和上级目录
+     */
+    std::vector<ushort> child_inodes;
+    std::pair<std::vector<unsigned short>, bool> ret(child_inodes, false);
+
+    auto res = read_dir_entry(inode_id, _uid, _gid);
+    if(!res.second) return ret;     // 加载目录项失败
+    dir_entry entry = res.first;
+
+    for(ushort i=0;i<entry.fileNum+2;++i){
+        child_inodes.push_back(entry.inode_arr[i]);
+    }
+    ret.first = child_inodes;
+    ret.second = true;
+
+    // TODO:
+    // 是否需要添加已打开的属性？
+    return ret;
+}
+
+bool inode_mgmt::rmdir(std::string dirname, unsigned short father_inode_id, unsigned short _uid, unsigned short _gid) {
+    /*
+     * 接口：
+     *    递归地删除father_inode_id对应目录下的目录dirname
+     */
+    auto res = open_dir_entry(father_inode_id, _uid, _gid);
+    if(!res.second) return false;   // 获取目录项失败，删除失败
+    std::vector<ushort> child_inodes = res.first;
+
+    for(auto it = child_inodes.begin() + 2; it != child_inodes.end(); it++){
+        ushort inode_id = *it;
+        auto res2 = get_name_of(inode_id);
+        if(!res2.second) return false;  // 获取文件名失败
+        if(res2.first == dirname){
+            if(in_mem_inodes[inode_id].fileType==DIR)
+            {
+                res = open_dir_entry(inode_id, _uid, _gid);
+                if(!res.second) return false;   // 获取目录项失败
+                if(res.first.size()!=2){    // 非空目录
+                    // 递归删除该目录下所有文件，然后退出
+                    std::vector<ushort> child_inodes2 = res.first;
+                    for(auto it2=child_inodes2.begin()+2;it2!=child_inodes2.end();it2++){
+                        if(!rmdir(get_name_of(*it2).first, inode_id, _uid, _gid)){
+                            // 删除子目录文件失败
+                            return false;
+                        }
+                    }
+                }
+                else{
+                    // 空目录，直接删除然后退出
+                    if(!_rmfile(dirname, father_inode_id, _uid, _gid)) return false;
+                }
+            }
+            else{
+                // 普通文件，直接删除然后退出
+                if(!_rmfile(dirname, father_inode_id, _uid, _gid)) return false;
+            }
+            if(!reclaim_inode(inode_id)) {
+                std::cerr<<"Failed to reclaim inode!\n";
+                return false;
+            }
+            else return true;
+        }
+    }
+
+    std::cerr<<"No such file or directory: "<<dirname<<"!\n";  // 说明在父目录下没找到该文件
+    return false;
+}
+
+bool inode_mgmt::close_dir_entry(unsigned short inode_id, std::vector<unsigned short> child_inodes){
+    /*
+     * 接口：
+     *    关闭目录项，写回到磁盘
+     */
+    dir_entry entry(0, 0);
+
+    if(child_inodes.size()<2 or child_inodes.size()>MAX_CHILD_PER_DIR+2){
+        std::cerr<<"Invalid child nodes!\n";
+        return false;
+    }
+
+    entry.fileNum = child_inodes.size() - 2;
+    for(ushort i=0; i<child_inodes.size(); ++i){
+        entry.inode_arr[i] = child_inodes[i];
+    }
+
+    write_data(inode_id, (char *)&entry, sizeof(entry));
+    return true;
+}
+
+std::pair<unsigned short, bool> inode_mgmt::get_inode_id(std::string path, ushort _uid, ushort _gid, ushort back_n) {
+    /*
+     * 接口：
+     *   路径转i节点号，注意路径需要是全路径
+     *   如果back_n>0，则返回的是倒数第back_n级目录对应的i节点号
+     */
+    std::pair<ushort, bool> ret(0, false);
+    std::vector<std::string> split_path = split(path, "/");
+
+    if(split_path.empty() or (split_path.size()-back_n)<=0){
+        // 说明是根目录
+        ret.first = 0;
+        ret.second = true;
+        return ret;
+    }
+
+    std::vector<ushort> child_inodes = open_dir_entry(0, _uid, _gid).first;
+
+
+    for(ushort idx=0; idx<split_path.size()-back_n; ++idx){
+        // 循环获取文件目录及i节点
+        std::string name = split_path[idx];
+        auto res2 = get_child_filename(child_inodes);
+        if(!res2.second){
+            std::cerr<<"Failed to get child file list!\n";
+            return ret;
+        }
+        std::vector<std::string> &filelist = res2.first;
+
+        for(ushort i=0; i<filelist.size(); ++i){
+            // 查找目录名对应的i节点号
+            if(filelist[i] == name){
+                ushort inode_id = child_inodes[i];
+                if(idx==split_path.size()-1-back_n){
+                    ret.first = inode_id;
+                    ret.second = true;
+                    return ret;
+                }
+                child_inodes = open_dir_entry(inode_id, _uid, _gid).first;
+                break;
+            }
+        }
+    }
+
+    // 说明filepath不存在
+    std::cerr<<"[ERROR]No such file or directory: "<<path<<std::endl;
+
+    ret.second = false;
+    return ret;
+
+}
+
+std::pair<std::vector<std::string>, bool> inode_mgmt::get_child_filename(std::vector<ushort> child_inodes){
+    /*
+     * 接口：
+     *    通过子i节点列表获取其对应目录项的子文件名列表
+     */
+    std::vector<std::string> filelist;
+    std::pair<std::vector<std::string>, bool> ret(filelist, false);
+
+    if(child_inodes.size()<2){
+        std::cerr<<"Invalid child inodes!\n";
+        return ret;
+    }
+
+    filelist.emplace_back(".");
+    filelist.emplace_back("..");
+    for(ushort i=2;i<child_inodes.size();++i){
+        auto res = get_name_of(child_inodes[i]);
+        if(!res.second){
+            std::cerr<<"Failed to get name of inode "<<child_inodes[i]<<"!\n";
+            return ret;
+        }
+        filelist.push_back(res.first);
+    }
+
+    ret.first = filelist;
+    ret.second = true;
+    return ret;
+}
+
+std::pair<std::vector<std::string>, bool>
+inode_mgmt::get_child_filename(unsigned short inode_id, ushort _uid, ushort _gid) {
+    /*
+     * 接口：
+     *    通过inode_id获取其对应目录项的子文件名列表
+     */
+    auto res = open_dir_entry(inode_id, _uid, _gid);
+    if(!res.second){
+        std::cerr<<"Failed to open dir entry of inode "<<inode_id<<"!\n";
+        return std::make_pair(std::vector<std::string>(), false);
+    }
+
+    return get_child_filename(res.first);
+}
+
+std::pair<std::string, bool> inode_mgmt::get_full_path_of(std::string path, unsigned short _uid, unsigned short _gid) {
+    /*
+     * 接口：
+     *    通过path获取其全路径
+     */
+    auto res = get_inode_id(path, _uid, _gid);
+    if(!res.second){
+        std::cerr<<"Failed to get the inode_id of \'"<<path<<"\'!\n";
+        return std::make_pair("", false);
+    }
+
+    return get_full_path_of(res.first, _uid, _gid);
+}
+
+bool inode_mgmt::rmdir(std::string path, unsigned short _uid, unsigned short _gid) {
+    /*
+     * 接口：
+     *   递归地删除path所对应的目录
+     */
+    auto parsed = parse_path(path, _uid, _gid);
+    if(parsed.second.empty()){
+        std::cerr<<"Failed to parse path "<<path<<"!\n";
+        return false;
+    }
+
+    return rmdir(parsed.second, parsed.first, _uid, _gid);
+}
+
+bool
+inode_mgmt::rmfile(std::string filepath, unsigned short _uid, unsigned short _gid) {
+    /*
+     * 接口：
+     *   删除文件（NORMAL类型）
+     */
+    auto parsed = parse_path(filepath,_uid,_gid);
+    if(parsed.second.empty()){
+        // 错误提示在parse_path中给出
+        return false;
+    }
+
+    return _rmfile(parsed.second, parsed.first, _uid, _gid);
+}
+
+uint32_t inode_mgmt::check_and_correct() {
+    /*
+     * 接口：
+     *   对i节点区的一致性检查和纠正
+     */
+    std::cout<<"Start comparing in-memory inodes with inodes on disk...\n";
+    uint32 consistency = 0, difference = 0;
+    inode tmp;
+    uint32 start_addr;
+    uint32 total_allocated_blocks = 0;
+    for(ushort i=0;i<MAX_INODE_NUM;++i){
+        start_addr = inode_start_addr + i*inode_size;
+        io_context->read_s((char *)&tmp, start_addr, inode_size);
+        if(in_mem_inodes.count(i) && bitmap.test(i)){
+            if(in_mem_inodes[i].allocated){
+                consistency += 1;
+            }
+            else{
+                in_mem_inodes[i].allocated = true;
+                difference += 1;
+            }
+
+            if(tmp.allocated){
+                consistency += 1;
+            } else difference += 1;
+
+            total_allocated_blocks += in_mem_inodes[i].allocated_block_n;
+        }
+        else{
+            difference += 1;
+            if(in_mem_inodes.count(i)){
+                // i节点在内存中，bitmap设置为1
+                bitmap.set(i);
+                total_allocated_blocks += in_mem_inodes[i].allocated_block_n;
+            }
+            else bitmap.reset(i);     // i节点已被释放内存，bitmap对应位应置0
+        }
+    }
+    std::printf("%.2f%% consistency; %u differences corrected", 100*double(consistency)/(consistency+difference), difference);
+    return total_allocated_blocks;
 }
 

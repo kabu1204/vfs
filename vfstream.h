@@ -16,7 +16,7 @@
 class vfstream {
 public:
     vfstream(inode_mgmt *_inode_manager, ushort _uid, ushort _gid);
-    vfstream(inode_mgmt *_inode_manager, char path[128], char _mode, ushort _uid, ushort _gid);
+    vfstream(inode_mgmt *_inode_manager, std::string path, char _mode, ushort _uid, ushort _gid);
     ~vfstream();
     size_t read(char *dst, size_t n);
     size_t write(char *src, size_t n);
@@ -25,6 +25,8 @@ public:
     bool open(const std::string& path, char _mode);
     void close();
     bool is_open() const;
+    bool eof();
+
 private:
     inode_mgmt* inode_manager;   // i节点管理器，用于向其申请读写权限，调用其接口
     char* _read_buffer;          // 只读缓冲区

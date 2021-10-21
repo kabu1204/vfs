@@ -200,6 +200,145 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
             if(!res.second) return; // 路径非法
             target_dir = res.first;
         }
+        auto res = inode_manager->get_full_path_of(target_dir, user.uid, user.gid);
+        if(!res.second){
+            std::cerr<<"Failed to get full path!\n";
+            return;
+        }
+        if(res.first.size()>cwd.size() and res.first.find(cwd)!=res.first.npos){
+            // 代表target_dir是cwd的子路径
+            ushort inode_id = inode_manager->get_inode_id(res.first, user.uid, user.gid).first;
+            if(inode_manager->isDir(inode_id) && inode_manager->open_dir_entry(inode_id,user.uid, user.gid).first.size()>2){
+                // 非空目录，询问用户
+                std::cout<<"Directory is not empty, are you sure to remove it recursively? [y/n (default:n)]:";
+                std::string user_in;
+                std::getline(std::cin, user_in);
+                if((trimed(user_in))!="y") return;  // 用户拒绝操作
+            }
+            inode_manager->rmdir(res.first, user.uid, user.gid);
+        }
+    }
+    else if(cmd == "newfile"){
+        /*
+         * 建立新文件
+         */
+        if(argv==1){
+            std::cout<<"usage: newfile filepath\n";
+            return;
+        }
+        std::string formatted_path = format_path(args[1]);
+        std::string target_path;
+        if(formatted_path[0]=='/'){
+            target_path = formatted_path;
+        }
+        else{
+            auto res = concat_path(cwd, formatted_path);
+            if(!res.second) return; // 路径非法
+            target_path = res.first;
+        }
+        inode_manager->mkfile(target_path, user.uid, user.gid);
+    }
+    else if(cmd == "cat"){
+        /*
+         * 输出文件内容
+         */
+        if(argv==1){
+            std::cout<<"usage: cat filepath\n";
+            return;
+        }
+        std::string formatted_path = format_path(args[1]);
+        std::string target_path;
+        if(formatted_path[0]=='/'){
+            target_path = formatted_path;
+        }
+        else{
+            auto res = concat_path(cwd, formatted_path);
+            if(!res.second) return; // 路径非法
+            target_path = res.first;
+        }
+        vfstream f(inode_manager, target_path, 'r', user.uid, user.gid);   // 创建虚拟文件流
+        size_t buffer_size = inode_manager->getsizeof(target_path, user.uid, user.gid);
+        char *buffer = new char[buffer_size];
+        f.read(buffer, buffer_size);
+        std::cout<<buffer_size;
+    }
+    else if(cmd == "copy"){
+        /*
+         * 拷贝文件
+         */
+        if(argv<3){
+            std::cout<<"usage:\n\tcopy src dst --- copy from src to dst\n\tcopy <host>src dst --- copy from host's src path to virtual disk's dst";
+            return;
+        }
+        std::string src = args[1];
+        std::string dst = args[2];
+        char buffer[BLOCK_SIZE];
+        size_t n;
+
+        if(src.substr(0,6)=="<host>" and dst.substr(0,6)=="<host>"){
+            std::ifstream f_read(src.substr(6, src.size()-6), std::ios::in|std::ios::binary);
+            std::ofstream f_write(dst.substr(6, dst.size()-6), std::ios::out|std::ios::binary);
+            while(!f_read.eof()){
+                f_read.read(buffer, BLOCK_SIZE);
+                n = f_read.gcount();
+                f_write.write(buffer, n);
+            }
+            f_read.close();
+            f_write.close();
+        }
+        else if(src.substr(0,6)=="<host>" and dst.substr(0,6)!="<host>"){
+            std::ifstream f_read(src.substr(6, src.size()-6), std::ios::in|std::ios::binary);
+            vfstream f_write(inode_manager, dst, 'w', user.uid, user.gid);
+            while(!f_read.eof()){
+                f_read.read(buffer, BLOCK_SIZE);
+                n = f_read.gcount();
+                f_write.write(buffer, n);
+            }
+            f_read.close();
+            f_write.close();
+        }
+        else if(src.substr(0,6)!="<host>" and dst.substr(0,6)!="<host>"){
+            vfstream f_read(inode_manager, src, 'r', user.uid, user.gid);
+            vfstream f_write(inode_manager, dst, 'w', user.uid, user.gid);
+            while(!f_read.eof()){
+                n = f_read.read(buffer, BLOCK_SIZE);
+                f_write.write(buffer, n);
+            }
+            f_read.close();
+            f_write.close();
+        }
+        else{
+            vfstream f_read(inode_manager, src, 'w', user.uid, user.gid);
+            std::ofstream f_write(dst.substr(6, dst.size()-6), std::ios::out|std::ios::binary);
+            while(!f_read.eof()){
+                n = f_read.read(buffer, BLOCK_SIZE);
+                f_write.write(buffer, n);
+            }
+            f_read.close();
+            f_write.close();
+        }
+    }
+    else if(cmd == "del"){
+        if(argv==1){
+            std::cout<<"usage: del filepath\n";
+            return;
+        }
+        std::string formatted_path = format_path(args[1]);
+        std::string target_path;
+        if(formatted_path[0]=='/'){
+            target_path = formatted_path;
+        }
+        else{
+            auto res = concat_path(cwd, formatted_path);
+            if(!res.second) return; // 路径非法
+            target_path = res.first;
+        }
+        // 错误提示又rmfile方法给出
+        inode_manager->rmfile(target_path, user.uid, user.gid);
+    }
+    else if(cmd == "check"){
+        uint32 inode_held_blocks = inode_manager->check_and_correct();
+        spb->check_and_correct(inode_held_blocks);
     }
 }
 
