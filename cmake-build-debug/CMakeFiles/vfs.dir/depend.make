@@ -36,17 +36,36 @@ CMakeFiles/vfs.dir/main.cpp.o: \
  ../ioservice.h \
  ../main.cpp \
  ../main.h \
+ ../msq_service.h \
+ ../shell.h \
  ../superblock.h \
  ../types.h \
  ../users.h \
  ../util.h \
  ../vfstream.h
+CMakeFiles/vfs.dir/msq_service.cpp.o: \
+ ../dir_entry.h \
+ ../inode.h \
+ ../ioservice.h \
+ ../msq_service.cpp \
+ ../msq_service.h \
+ ../superblock.h \
+ ../types.h \
+ ../users.h \
+ ../util.h
 CMakeFiles/vfs.dir/rights.cpp.o: \
  ../rights.cpp \
  ../rights.h
 CMakeFiles/vfs.dir/shell.cpp.o: \
+ ../dir_entry.h \
+ ../inode.h \
+ ../ioservice.h \
  ../shell.cpp \
- ../shell.h
+ ../shell.h \
+ ../superblock.h \
+ ../types.h \
+ ../users.h \
+ ../util.h
 CMakeFiles/vfs.dir/superblock.cpp.o: \
  ../ioservice.h \
  ../superblock.cpp \

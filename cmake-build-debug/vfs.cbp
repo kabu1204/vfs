@@ -110,6 +110,12 @@
 		<Unit filename="/Users/ycy/CLionProjects/vfs/main.h">
 			<Option target="vfs"/>
 		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/msq_service.cpp">
+			<Option target="vfs"/>
+		</Unit>
+		<Unit filename="/Users/ycy/CLionProjects/vfs/msq_service.h">
+			<Option target="vfs"/>
+		</Unit>
 		<Unit filename="/Users/ycy/CLionProjects/vfs/rights.cpp">
 			<Option target="vfs"/>
 		</Unit>

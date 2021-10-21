@@ -1,20 +1,8 @@
 #include "main.h"
-#include "types.h"
-#include "superblock.h"
-#include "inode.h"
-#include "util.h"
-#include "ioservice.h"
-#include "users.h"
-#include "vfstream.h"
-#include "init.h"
-#include <iostream>
-#include <string>
-#include <cstdio>
-#include <functional>
 
 void simdisk(inode_mgmt *inode_manager, superblock_c *spb);
 
-int exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager, superblock_c *spb);
+//int exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager, superblock_c *spb);
 
 std::pair<USER, bool> login(const std::vector<USER> &users);
 
@@ -28,20 +16,23 @@ ushort cwd_inode_id = 0;    // 当前工作目录对应的i节点号
 // 登录完成后，切换到登录用户
 USER user("system", 0, SYSTEM, SYSTEM);
 
-int main() {
+int main(int argc, char **argv) {
+    if(argc>=2){
+        if(strcmp(argv[1], "client")==0){
+            char tty[64] = "./ipc_msg";
+            shell sh("./ipc_msg", 123);
+        }
+    }
     ioservice *io_context = nullptr;        // 读写服务
     inode_mgmt *inode_manager = nullptr;    // i节点管理器
     superblock_c *spb = nullptr;            // 超级块管理器
     Format(inode_manager, io_context, spb);   // 格式化磁盘
 //    Load(spb, io_context, inode_manager);   // 加载磁盘数据
 
-    std::vector<USER> users = load_User(inode_manager);
-    std::pair<USER, bool> res = login(users);
-    if(res.second){
-        // 登录成功
-        user = res.first;
-        simdisk(inode_manager, spb);
-    }
+
+    std::vector<USER> users = load_User(inode_manager); // 加载用户信息
+
+    msq_service msq("./ipc_msg", 123, users, inode_manager, spb, cwd);
 
     delete inode_manager;
     delete spb;
@@ -61,7 +52,7 @@ void simdisk(inode_mgmt *inode_manager, superblock_c *spb) {
         std::vector<std::string> args = split(trimed(str), " ");
         int argv = args.size();
         if(argv > 0){
-            if(exec_cmd(args, argv, inode_manager, spb)==-1)
+            if(exec_cmd(args, argv, inode_manager, spb) == -1)
                 break;
         }
         prompt();
@@ -85,7 +76,7 @@ int exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager,
         double used_percent = 100*double(used_block_num)/spb->s_block.max_block_num;            // 已用百分比
         char root_dir_name[MAX_FILENAME_LEN];       // 根目录名
         strcpy(root_dir_name, inode_manager->in_mem_inodes[0].fileName);    // 0号i节点对应根目录
-        std::cout<<"\nFilesystem\tBlocks\tUsed\tFree\tUsed%\tMounted on\n";
+        std::cout<<std::endl<<std::flush<<"Filesystem\tBlocks\tUsed\tFree\tUsed%\tMounted on"<<std::endl;
         std::printf("vfs.disk\t%u\t%u\t%u\t%.2f%%\t%s\n",spb->s_block.max_block_num,used_block_num,spb->s_block.free_block_num,used_percent,root_dir_name);
     }
     else if(cmd == "cd"){
@@ -379,7 +370,8 @@ int exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager,
     }
 }
 
-std::vector<USER> load_User(inode_mgmt* inode_manager){
+
+    std::vector<USER> load_User(inode_mgmt* inode_manager){
     /*
      * 读取系统文件/.user，加载用户信息
      */

@@ -4,6 +4,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/vfs.dir/inode.cpp.o"
   "CMakeFiles/vfs.dir/ioservice.cpp.o"
   "CMakeFiles/vfs.dir/main.cpp.o"
+  "CMakeFiles/vfs.dir/msq_service.cpp.o"
   "CMakeFiles/vfs.dir/rights.cpp.o"
   "CMakeFiles/vfs.dir/shell.cpp.o"
   "CMakeFiles/vfs.dir/superblock.cpp.o"

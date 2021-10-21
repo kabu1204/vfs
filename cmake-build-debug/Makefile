@@ -249,6 +249,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+msq_service.o: msq_service.cpp.o
+.PHONY : msq_service.o
+
+# target to build an object file
+msq_service.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/msq_service.cpp.o
+.PHONY : msq_service.cpp.o
+
+msq_service.i: msq_service.cpp.i
+.PHONY : msq_service.i
+
+# target to preprocess a source file
+msq_service.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/msq_service.cpp.i
+.PHONY : msq_service.cpp.i
+
+msq_service.s: msq_service.cpp.s
+.PHONY : msq_service.s
+
+# target to generate assembly for a file
+msq_service.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vfs.dir/build.make CMakeFiles/vfs.dir/msq_service.cpp.s
+.PHONY : msq_service.cpp.s
+
 rights.o: rights.cpp.o
 .PHONY : rights.o
 
@@ -393,6 +417,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... msq_service.o"
+	@echo "... msq_service.i"
+	@echo "... msq_service.s"
 	@echo "... rights.o"
 	@echo "... rights.i"
 	@echo "... rights.s"

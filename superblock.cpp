@@ -41,6 +41,42 @@ void superblock_c::print() {
 //    std::printf("-------Superblock Info-------\n");
 }
 
+int superblock_c::print_msg(char *buffer){
+    /*
+     * 将超级块信息格式化输出的信息存到buffer中
+     */
+
+    size_t real_size = 0;
+    std::string fmt;
+    std::string ret="";
+    char *_buff = new char[1024];
+
+    fmt = "-------Superblock Info-------\nMax space:\t\t\t%u Bytes\nAvailable space:\t%u Bytes\n";
+    real_size += std::snprintf(_buff, 1024, fmt.c_str(), s_block.max_space, s_block.available_space);
+    ret += _buff;
+
+    fmt = "-------Superblock Info-------\nMax space:\t\t\t%u Bytes\nAvailable space:\t%u Bytes\n";
+    real_size += std::snprintf(_buff, 1024, fmt.c_str(), s_block.max_space, s_block.available_space);
+    ret += _buff;
+
+    fmt = "Free space:\t\t\t%u Bytes(%.2f%%)\nBlock size:\t\t\t%u Bytes\nMax block num:\t\t%u\n";
+    real_size += std::snprintf(_buff, 1024, fmt.c_str(), s_block.free_space, 100*double(s_block.free_space)/s_block.available_space, s_block.block_size,s_block.max_block_num);
+    ret += _buff;
+
+
+    fmt = "Free block num:\t\t%u(%.2f%%)\nMax inode num:\t\t%u\nFree inode num:\t\t%u(%.2f%%)\n";
+    real_size += std::snprintf(_buff, 1024, fmt.c_str(), s_block.free_block_num, 100*double(s_block.free_block_num)/s_block.max_block_num,s_block.max_inode_num,s_block.free_inode_num, 100*double(s_block.free_block_num)/s_block.max_block_num);
+    ret += _buff;
+
+
+    fmt = "Superblock start address:\t%u\ninodes start address:\t%u\nRoot dir_entry start address:\t%u\n";
+    real_size += std::snprintf(_buff, 1024, fmt.c_str(), s_block.superblock_start_addr, s_block.inode_start_addr, s_block.root_dir_start_addr);
+    ret += _buff;
+
+    strcpy(buffer, ret.c_str());
+    return real_size;
+}
+
 std::pair<std::vector<uint32>, bool> superblock_c::alloc_n_blocks(ushort n) {
     /*
      * 接口：

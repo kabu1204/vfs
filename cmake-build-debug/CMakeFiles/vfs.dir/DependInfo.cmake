@@ -13,6 +13,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/Users/ycy/CLionProjects/vfs/inode.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/inode.cpp.o"
   "/Users/ycy/CLionProjects/vfs/ioservice.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/ioservice.cpp.o"
   "/Users/ycy/CLionProjects/vfs/main.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/main.cpp.o"
+  "/Users/ycy/CLionProjects/vfs/msq_service.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/msq_service.cpp.o"
   "/Users/ycy/CLionProjects/vfs/rights.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/rights.cpp.o"
   "/Users/ycy/CLionProjects/vfs/shell.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/shell.cpp.o"
   "/Users/ycy/CLionProjects/vfs/superblock.cpp" "/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles/vfs.dir/superblock.cpp.o"

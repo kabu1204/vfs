@@ -170,9 +170,22 @@ CMakeFiles/vfs.dir/util.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vfs.dir/util.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ycy/CLionProjects/vfs/util.cpp -o CMakeFiles/vfs.dir/util.cpp.s
 
+CMakeFiles/vfs.dir/init.cpp.o: CMakeFiles/vfs.dir/flags.make
+CMakeFiles/vfs.dir/init.cpp.o: ../init.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/vfs.dir/init.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/vfs.dir/init.cpp.o -c /Users/ycy/CLionProjects/vfs/init.cpp
+
+CMakeFiles/vfs.dir/init.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vfs.dir/init.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ycy/CLionProjects/vfs/init.cpp > CMakeFiles/vfs.dir/init.cpp.i
+
+CMakeFiles/vfs.dir/init.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vfs.dir/init.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ycy/CLionProjects/vfs/init.cpp -o CMakeFiles/vfs.dir/init.cpp.s
+
 CMakeFiles/vfs.dir/shell.cpp.o: CMakeFiles/vfs.dir/flags.make
 CMakeFiles/vfs.dir/shell.cpp.o: ../shell.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/vfs.dir/shell.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/vfs.dir/shell.cpp.o"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/vfs.dir/shell.cpp.o -c /Users/ycy/CLionProjects/vfs/shell.cpp
 
 CMakeFiles/vfs.dir/shell.cpp.i: cmake_force
@@ -183,18 +196,18 @@ CMakeFiles/vfs.dir/shell.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vfs.dir/shell.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ycy/CLionProjects/vfs/shell.cpp -o CMakeFiles/vfs.dir/shell.cpp.s
 
-CMakeFiles/vfs.dir/init.cpp.o: CMakeFiles/vfs.dir/flags.make
-CMakeFiles/vfs.dir/init.cpp.o: ../init.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/vfs.dir/init.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/vfs.dir/init.cpp.o -c /Users/ycy/CLionProjects/vfs/init.cpp
+CMakeFiles/vfs.dir/msq_service.cpp.o: CMakeFiles/vfs.dir/flags.make
+CMakeFiles/vfs.dir/msq_service.cpp.o: ../msq_service.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/vfs.dir/msq_service.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/vfs.dir/msq_service.cpp.o -c /Users/ycy/CLionProjects/vfs/msq_service.cpp
 
-CMakeFiles/vfs.dir/init.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vfs.dir/init.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ycy/CLionProjects/vfs/init.cpp > CMakeFiles/vfs.dir/init.cpp.i
+CMakeFiles/vfs.dir/msq_service.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/vfs.dir/msq_service.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ycy/CLionProjects/vfs/msq_service.cpp > CMakeFiles/vfs.dir/msq_service.cpp.i
 
-CMakeFiles/vfs.dir/init.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vfs.dir/init.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ycy/CLionProjects/vfs/init.cpp -o CMakeFiles/vfs.dir/init.cpp.s
+CMakeFiles/vfs.dir/msq_service.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/vfs.dir/msq_service.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ycy/CLionProjects/vfs/msq_service.cpp -o CMakeFiles/vfs.dir/msq_service.cpp.s
 
 # Object files for target vfs
 vfs_OBJECTS = \
@@ -206,8 +219,9 @@ vfs_OBJECTS = \
 "CMakeFiles/vfs.dir/ioservice.cpp.o" \
 "CMakeFiles/vfs.dir/vfstream.cpp.o" \
 "CMakeFiles/vfs.dir/util.cpp.o" \
+"CMakeFiles/vfs.dir/init.cpp.o" \
 "CMakeFiles/vfs.dir/shell.cpp.o" \
-"CMakeFiles/vfs.dir/init.cpp.o"
+"CMakeFiles/vfs.dir/msq_service.cpp.o"
 
 # External object files for target vfs
 vfs_EXTERNAL_OBJECTS =
@@ -220,11 +234,12 @@ vfs: CMakeFiles/vfs.dir/dir_entry.cpp.o
 vfs: CMakeFiles/vfs.dir/ioservice.cpp.o
 vfs: CMakeFiles/vfs.dir/vfstream.cpp.o
 vfs: CMakeFiles/vfs.dir/util.cpp.o
-vfs: CMakeFiles/vfs.dir/shell.cpp.o
 vfs: CMakeFiles/vfs.dir/init.cpp.o
+vfs: CMakeFiles/vfs.dir/shell.cpp.o
+vfs: CMakeFiles/vfs.dir/msq_service.cpp.o
 vfs: CMakeFiles/vfs.dir/build.make
 vfs: CMakeFiles/vfs.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable vfs"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/ycy/CLionProjects/vfs/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable vfs"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/vfs.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

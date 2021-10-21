@@ -45,6 +45,8 @@ public:
 
     void print();
 
+    int print_msg(char *buffer);
+
     std::pair<std::vector<uint32>, bool > alloc_n_blocks(ushort n);
 
     std::pair<uint32, bool > alloc_block();
