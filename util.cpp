@@ -230,15 +230,16 @@ std::pair<std::string, bool> concat_path(std::string a, std::string b){
     trim(a); trim(b);
 
     if(b[0]=='/'){
+        // b在a后，因为b不能是绝对路径
         std::cerr<<"illegal path!\n";
         return ret;
     }
 
-    // 去掉末尾的'/'
+    // 格式化字符串
     a = format_path(a);
     b = format_path(b);
 
-    ret.first = a+"/"+b;
+    ret.first = a+b;
     ret.second = true;
     return ret;
 }
@@ -248,16 +249,20 @@ std::string format_path(std::string _path){
      * 审查和格式化路径字符串
      */
     _path = trimed(_path);
-    if(_path[0] == '/'){
-        // 只留下最开头的一个'/'
-        while(_path[1] == '/') _path = _path.substr(1, _path.size() - 1);
+    if(_path=="/") return _path;
+
+    std::vector<std::string> split_path = split(_path, "/");
+    std::string prefix="";
+    std::string ret="";
+
+    if(_path[0]=='/'){
+        prefix = "/";
     }
 
-    // 去掉末尾的'/'
-    while(_path.back() == '/') _path.erase(_path.end() - 1);
-
-    if(_path[0] != '/'){
-        _path = "./" + _path;
+    ret += prefix;
+    for(auto name:split_path){
+        ret += (name + "/");
     }
-    return _path;
+
+    return ret;
 }

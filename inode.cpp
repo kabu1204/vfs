@@ -254,6 +254,7 @@ bool inode_mgmt::reclaim_inode(ushort inode_id) {
 
     reclaimed_inodes.push_back(inode_id);           // 暂存被回收的inode号，以便下次快速分配
     bitmap.reset(inode_id);                         // 设置bitmap状态
+    spb->s_block.free_inode_num += 1;               // 空闲i节点数+1
     last_p = inode_id;
 
     return true;
@@ -282,7 +283,7 @@ inode_mgmt::mkdir(std::string _filepath, unsigned short _owner, unsigned short _
 
     auto res = new_file(filename, father_inode_id, _owner, _group, DIR);     // 创建一个新文件，类型是DIR
     if(!res.second){
-        std::cerr<<"Failed to create a new file!\n";
+        std::cerr<<"Failed to create a new file!\n"<<std::flush;
         ret.second = false;
         return ret;
     }
@@ -551,20 +552,6 @@ std::pair<ushort, std::string> inode_mgmt::parse_path(std::string filepath, usho
             return ret;
         }
         father_inode_id = res.first;
-        std::vector<ushort> child_list = open_dir_entry(father_inode_id, _uid, _gid).first;
-        bool flag = true;
-        for(auto inode_id:child_list){
-            if(get_name_of(inode_id).first==filename){
-                // 如果父节点的子文件中有filename，则flag置为false；
-                flag = false;
-                break;
-            }
-        }
-        if(flag){
-            // flag没变，代表filename不存在；
-            std::cerr<<"No such file or directory: "<<filepath<<"\n";
-            return ret;
-        }
     }
 
 
@@ -710,12 +697,12 @@ std::pair<std::string, bool> inode_mgmt::get_full_path_of(ushort inode_id, ushor
 
     ushort curr_inode_id = inode_id;
     while(curr_inode_id!=0){
-        auto res2 = get_dir_entry(inode_id, _uid, _gid);
+        auto res2 = get_dir_entry(curr_inode_id, _uid, _gid);
         if(!res2.second) return ret;    // 获取目录项失败
         curr_inode_id = res2.first.inode_arr[1];
         res = get_name_of(curr_inode_id);
         if(!res.second) return ret;     // 获取目录名失败
-        path = get_name_of(curr_inode_id).first + "/" + path;
+        path = format_path(get_name_of(curr_inode_id).first) + path;
     }
     ret.first = format_path(path);
     ret.second = true;
@@ -737,11 +724,16 @@ inode_mgmt::_rmfile(std::string filename, ushort father_inode_id, ushort _uid, u
         auto res2 = get_name_of(inode_id);
         if(!res2.second) return false;  // 获取文件名失败
         if(res2.first == filename){
+            if(open(inode_id,_uid,_gid).first[1]=='0'){
+                // 不具有写权限，不允许删除
+                std::cerr<<"Permission denied: you can\'t delete the file!\n";
+                return false;
+            }
             if(in_mem_inodes[inode_id].fileType==DIR)
             {
-                auto res2 = read_dir_entry(inode_id, _uid, _gid);
-                if(!res2.second) return false;   // 获取目录项失败
-                if(res2.first.fileNum!=0) return false;  // 非空目录，删除失败
+                auto res3 = read_dir_entry(inode_id, _uid, _gid);
+                if(!res3.second) return false;   // 获取目录项失败
+                if(res3.first.fileNum != 0) return false;  // 非空目录，删除失败
             }
             if(!reclaim_inode(inode_id)){   // 释放i节点失败
                 std::cerr<<"Failed to remove file!\n";
@@ -810,7 +802,7 @@ bool inode_mgmt::rmdir(std::string dirname, unsigned short father_inode_id, unsi
             {
                 res = open_dir_entry(inode_id, _uid, _gid);
                 if(!res.second) return false;   // 获取目录项失败
-                if(res.first.size()!=2){    // 非空目录
+                if(res.first.size()>2){    // 非空目录
                     // 递归删除该目录下所有文件，然后退出
                     std::vector<ushort> child_inodes2 = res.first;
                     for(auto it2=child_inodes2.begin()+2;it2!=child_inodes2.end();it2++){
@@ -820,20 +812,14 @@ bool inode_mgmt::rmdir(std::string dirname, unsigned short father_inode_id, unsi
                         }
                     }
                 }
-                else{
-                    // 空目录，直接删除然后退出
-                    if(!_rmfile(dirname, father_inode_id, _uid, _gid)) return false;
-                }
+                // 即便之前非空，递归删完也成空目录了，直接删除然后退出
+                if(!_rmfile(dirname, father_inode_id, _uid, _gid)) return false;
             }
             else{
                 // 普通文件，直接删除然后退出
                 if(!_rmfile(dirname, father_inode_id, _uid, _gid)) return false;
             }
-            if(!reclaim_inode(inode_id)) {
-                std::cerr<<"Failed to reclaim inode!\n";
-                return false;
-            }
-            else return true;
+            return true;
         }
     }
 
@@ -907,11 +893,10 @@ std::pair<unsigned short, bool> inode_mgmt::get_inode_id(std::string path, ushor
     }
 
     // 说明filepath不存在
-    std::cerr<<"[ERROR]No such file or directory: "<<path<<std::endl;
+//    std::cerr<<"[ERROR]No such file or directory: "<<path<<std::endl;
 
     ret.second = false;
     return ret;
-
 }
 
 std::pair<std::vector<std::string>, bool> inode_mgmt::get_child_filename(std::vector<ushort> child_inodes){
@@ -1030,7 +1015,8 @@ uint32_t inode_mgmt::check_and_correct() {
             total_allocated_blocks += in_mem_inodes[i].allocated_block_n;
         }
         else{
-            difference += 1;
+            if(!bitmap.test(i) && !in_mem_inodes.count(i)) consistency+=1;
+            else difference += 1;
             if(in_mem_inodes.count(i)){
                 // i节点在内存中，bitmap设置为1
                 bitmap.set(i);
@@ -1039,7 +1025,7 @@ uint32_t inode_mgmt::check_and_correct() {
             else bitmap.reset(i);     // i节点已被释放内存，bitmap对应位应置0
         }
     }
-    std::printf("%.2f%% consistency; %u differences corrected", 100*double(consistency)/(consistency+difference), difference);
+    std::printf("%.3f%% consistency; %u differences corrected\n", 100*double(consistency)/(consistency+difference), difference);
     return total_allocated_blocks;
 }
 

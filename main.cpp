@@ -25,7 +25,7 @@ int init_DefaultUsers(superblock_c *spb, ioservice *io_context, inode_mgmt  *ino
 
 void simdisk(inode_mgmt *inode_manager, superblock_c *spb);
 
-void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager, superblock_c *spb);
+int exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager, superblock_c *spb);
 
 std::vector<USER> load_User(inode_mgmt* inode_manager);
 
@@ -43,15 +43,18 @@ int main() {
     ioservice *io_context = nullptr;        // 读写服务
     inode_mgmt *inode_manager = nullptr;    // i节点管理器
     superblock_c *spb = nullptr;            // 超级块管理器
-//    Format(inode_manager, io_context, spb);   // 格式化磁盘
-    Load(spb, io_context, inode_manager);   // 加载磁盘数据
+    Format(inode_manager, io_context, spb);   // 格式化磁盘
+//    Load(spb, io_context, inode_manager);   // 加载磁盘数据
 
     std::vector<USER> users = load_User(inode_manager);
-    std::pair<USER, bool> res = login(users);
-    if(res.second){
-        // 登录成功
-        simdisk(inode_manager, spb);
-    }
+    user = users[1];
+    simdisk(inode_manager, spb);
+//    std::pair<USER, bool> res = login(users);
+//    if(res.second){
+//        // 登录成功
+//        user = res.first;
+//        simdisk(inode_manager, spb);
+//    }
 
     delete inode_manager;
     delete spb;
@@ -71,7 +74,8 @@ void simdisk(inode_mgmt *inode_manager, superblock_c *spb) {
         std::vector<std::string> args = split(trimed(str), " ");
         int argv = args.size();
         if(argv > 0){
-            exec_cmd(args, argv, inode_manager, spb);
+            if(exec_cmd(args, argv, inode_manager, spb)==-1)
+                break;
         }
         prompt();
     }
@@ -86,7 +90,7 @@ void prompt() {
     std::printf("\033[31m%c \033[1m%s\033[0m \033[36min\033[0m \033[1m\033[4m\033[37m%s\033[0m ", prefix, user.name, cwd.c_str());
 }
 
-void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager, superblock_c *spb) {
+int exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager, superblock_c *spb) {
     std::string cmd = args[0];
     if(cmd == "info"){
         spb->print();
@@ -95,7 +99,7 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
         char root_dir_name[MAX_FILENAME_LEN];       // 根目录名
         strcpy(root_dir_name, inode_manager->in_mem_inodes[0].fileName);    // 0号i节点对应根目录
         std::cout<<"\nFilesystem\tBlocks\tUsed\tFree\tUsed%\tMounted on\n";
-        std::printf("vfs.disk\t%u\t%u\t%u\t%.2f%%\t%s",spb->s_block.max_block_num,used_block_num,spb->s_block.free_block_num,used_percent,root_dir_name);
+        std::printf("vfs.disk\t%u\t%u\t%u\t%.2f%%\t%s\n",spb->s_block.max_block_num,used_block_num,spb->s_block.free_block_num,used_percent,root_dir_name);
     }
     else if(cmd == "cd"){
         /*
@@ -103,23 +107,24 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
          */
         std::string target_dir;
         if(argv==1){
-            return;
+            return 0;
         }
         if(trimed(args[1])[0]=='/'){
             target_dir = trimed(args[1]);
         }
         else{
             auto res = concat_path(cwd, args[1]);
-            if(!res.second) return; // 路径非法
+            if(!res.second) return 0; // 路径非法
             target_dir = res.first;
         }
-        auto res2 = path2inode_id(target_dir, inode_manager, user.uid, user.gid, 0);
-        if(!res2.second) return;    // 路径不存在或者没有权限
+        auto res2 = inode_manager->get_inode_id(target_dir, user.uid, user.gid);
+        if(!res2.second){
+            // 路径不存在
+            std::cerr<<"No such directory!\n";
+            return 0;
+        }
         cwd_inode_id = res2.first;  // 设置当前工作目录的i节点号
         cwd = inode_manager->get_full_path_of(cwd_inode_id, user.uid, user.gid).first;    // 设置当前工作目录
-    }
-    else if(cmd == "info"){
-        spb->print();
     }
     else if(cmd == "dir"){
         /*
@@ -133,22 +138,25 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
                 target_dir = trimed(args[1]);
             } else {
                 auto res = concat_path(cwd, args[1]);
-                if(!res.second) return; // 路径非法
+                if(!res.second) return 0; // 路径非法
                 target_dir = res.first;
             }
-            auto res2 = path2inode_id(target_dir, inode_manager, user.uid, user.gid, 0);
-            if(!res2.second) return;    // 路径不存在或者没有权限
+            auto res2 = inode_manager->get_inode_id(target_dir, user.uid, user.gid);
+            if(!res2.second){    // 路径不存在
+                std::cerr<<"No such directory!\n";
+                return 0;
+            }
             target_dir_inode_id = res2.first;
             if(!inode_manager->isDir(target_dir_inode_id)){
                 std::cerr<<"The path is not a directory!";
-                return;
+                return 0;
             }
         }
         auto res3 = inode_manager->get_dir_entry(target_dir_inode_id, user.uid, user.gid);
-        if(!res3.second) return;    // 获取目录项失败
+        if(!res3.second) return 0;    // 获取目录项失败
         dir_entry& entry = res3.first;
         ushort curr_inode_id;
-        std::printf("Protection\tAddr\tSize\tName");
+        std::printf("Protection\tAddr\tSize\tName\n");
         for(ushort i=0;i<entry.fileNum+2;++i){
             curr_inode_id = entry.inode_arr[i];
             std::string protection_info = inode_manager->get_protection_code(curr_inode_id).first;
@@ -157,16 +165,16 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
             std::string name = inode_manager->get_name_of(curr_inode_id).first;
             if(i==0) name = ".";
             if(i==1) name = "..";
-            std::printf("%s\t%u\t%d\t%s\n", protection_info.c_str(), addr, size, name.c_str());
+            std::printf("%s\t%u\t%d\t\t%s\n", protection_info.c_str(), addr, size, name.c_str());
         }
     }
     else if(cmd == "md" or cmd == "mkdir"){
         /*
          * 创建目录
          */
-        if(argv==0){
+        if(argv==1){
             std::cout<<"usage: md|mkdir directory\n";
-            return;
+            return 0;
         }
         std::string target_dir;
         std::string formatted_path = format_path(args[1]);
@@ -175,11 +183,14 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
         }
         else{
             auto res = concat_path(cwd, formatted_path);
-            if(!res.second) return; // 路径非法
+            if(!res.second) {
+                std::cerr<<"No such file or directory!\n";
+                return 0;
+            }
             target_dir = res.first;
         }
         if(!inode_manager->mkdir(target_dir, user.uid, user.gid).second){
-            return;
+            return 0;
         }
     }
     else if(cmd == "rd"){
@@ -188,7 +199,7 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
          */
         if(argv<2){
             std::printf("usage: rd directory\n");
-            return;
+            return 0;
         }
         std::string formatted_path = format_path(args[1]);
         std::string target_dir;
@@ -197,13 +208,13 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
         }
         else{
             auto res = concat_path(cwd, formatted_path);
-            if(!res.second) return; // 路径非法
+            if(!res.second) return 0; // 路径非法
             target_dir = res.first;
         }
         auto res = inode_manager->get_full_path_of(target_dir, user.uid, user.gid);
         if(!res.second){
-            std::cerr<<"Failed to get full path!\n";
-            return;
+            std::cerr<<"No such file or directory!\n";
+            return 0;
         }
         if(res.first.size()>cwd.size() and res.first.find(cwd)!=res.first.npos){
             // 代表target_dir是cwd的子路径
@@ -213,9 +224,13 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
                 std::cout<<"Directory is not empty, are you sure to remove it recursively? [y/n (default:n)]:";
                 std::string user_in;
                 std::getline(std::cin, user_in);
-                if((trimed(user_in))!="y") return;  // 用户拒绝操作
+                if((trimed(user_in))!="y") return 0;  // 用户拒绝操作
             }
             inode_manager->rmdir(res.first, user.uid, user.gid);
+        }
+        else{
+            std::cerr<<"You are removing a directory where your current working directory is located!"<<std::endl;
+            return 0;
         }
     }
     else if(cmd == "newfile"){
@@ -224,7 +239,7 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
          */
         if(argv==1){
             std::cout<<"usage: newfile filepath\n";
-            return;
+            return 0;
         }
         std::string formatted_path = format_path(args[1]);
         std::string target_path;
@@ -233,7 +248,7 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
         }
         else{
             auto res = concat_path(cwd, formatted_path);
-            if(!res.second) return; // 路径非法
+            if(!res.second) return 0; // 路径非法
             target_path = res.first;
         }
         inode_manager->mkfile(target_path, user.uid, user.gid);
@@ -244,7 +259,7 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
          */
         if(argv==1){
             std::cout<<"usage: cat filepath\n";
-            return;
+            return 0;
         }
         std::string formatted_path = format_path(args[1]);
         std::string target_path;
@@ -253,14 +268,18 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
         }
         else{
             auto res = concat_path(cwd, formatted_path);
-            if(!res.second) return; // 路径非法
+            if(!res.second){
+                std::cerr<<"No such file!\n"; // 路径不存在
+                return 0;
+            }
             target_path = res.first;
         }
         vfstream f(inode_manager, target_path, 'r', user.uid, user.gid);   // 创建虚拟文件流
         size_t buffer_size = inode_manager->getsizeof(target_path, user.uid, user.gid);
         char *buffer = new char[buffer_size];
         f.read(buffer, buffer_size);
-        std::cout<<buffer_size;
+        f.close();
+        std::cout<<buffer;
     }
     else if(cmd == "copy"){
         /*
@@ -268,15 +287,39 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
          */
         if(argv<3){
             std::cout<<"usage:\n\tcopy src dst --- copy from src to dst\n\tcopy <host>src dst --- copy from host's src path to virtual disk's dst";
-            return;
+            return 0;
         }
         std::string src = args[1];
         std::string dst = args[2];
         char buffer[BLOCK_SIZE];
         size_t n;
 
+        if(dst.substr(0,6)!="<host>") {
+            auto res = inode_manager->get_inode_id(dst, user.uid, user.gid);
+            if (!res.second){
+                // 路径不存在，尝试创建
+                std::vector<std::string> args_t;     // 参数
+                args_t.push_back("newfile");
+                args_t.push_back(dst);
+                exec_cmd(args_t, 2, inode_manager, spb);
+            }
+            else {
+                // 路径存在
+                if (inode_manager->isDir(res.first)) {
+                    // 如果dst是个目录，则需要首先创建同名文件
+                    // 直接用exec_cmd已经实现的newfile命令
+                    std::string filename = split(src, "/").back();
+                    std::vector<std::string> args_t;     // 参数
+                    args_t.push_back("newfile");
+                    args_t.push_back(concat_path(dst, filename).first);
+                    exec_cmd(args_t, 2, inode_manager, spb);
+                    dst = concat_path(dst, filename).first;
+                }
+            }
+        }
+
         if(src.substr(0,6)=="<host>" and dst.substr(0,6)=="<host>"){
-            std::ifstream f_read(src.substr(6, src.size()-6), std::ios::in|std::ios::binary);
+            std::ifstream f_read(src.substr(6, src.size()-6).c_str(), std::ios::in|std::ios::binary);
             std::ofstream f_write(dst.substr(6, dst.size()-6), std::ios::out|std::ios::binary);
             while(!f_read.eof()){
                 f_read.read(buffer, BLOCK_SIZE);
@@ -287,7 +330,7 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
             f_write.close();
         }
         else if(src.substr(0,6)=="<host>" and dst.substr(0,6)!="<host>"){
-            std::ifstream f_read(src.substr(6, src.size()-6), std::ios::in|std::ios::binary);
+            std::ifstream f_read(src.substr(6, src.size()-6).c_str(), std::ios::in|std::ios::binary);
             vfstream f_write(inode_manager, dst, 'w', user.uid, user.gid);
             while(!f_read.eof()){
                 f_read.read(buffer, BLOCK_SIZE);
@@ -308,8 +351,8 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
             f_write.close();
         }
         else{
-            vfstream f_read(inode_manager, src, 'w', user.uid, user.gid);
-            std::ofstream f_write(dst.substr(6, dst.size()-6), std::ios::out|std::ios::binary);
+            vfstream f_read(inode_manager, src, 'r', user.uid, user.gid);
+            std::ofstream f_write(dst.substr(6, dst.size()-6).c_str(), std::ios::out|std::ios::binary);
             while(!f_read.eof()){
                 n = f_read.read(buffer, BLOCK_SIZE);
                 f_write.write(buffer, n);
@@ -321,7 +364,7 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
     else if(cmd == "del"){
         if(argv==1){
             std::cout<<"usage: del filepath\n";
-            return;
+            return 0;
         }
         std::string formatted_path = format_path(args[1]);
         std::string target_path;
@@ -330,15 +373,22 @@ void exec_cmd(std::vector<std::string> args, int argv, inode_mgmt *inode_manager
         }
         else{
             auto res = concat_path(cwd, formatted_path);
-            if(!res.second) return; // 路径非法
+            if(!res.second){
+                std::cerr<<"No such file!\n";
+                return 0;
+            }
             target_path = res.first;
         }
-        // 错误提示又rmfile方法给出
+        // 错误提示由rmfile方法给出
         inode_manager->rmfile(target_path, user.uid, user.gid);
     }
     else if(cmd == "check"){
         uint32 inode_held_blocks = inode_manager->check_and_correct();
         spb->check_and_correct(inode_held_blocks);
+        return 0;
+    }
+    else if(cmd == "EXIT"){
+        return -1;
     }
 }
 
@@ -394,7 +444,7 @@ std::vector<USER> load_User(inode_mgmt* inode_manager){
         if(record[0]=="user"){
             std::vector<std::string> pattern = split(std::string(record[1]), ":");  // 解析模式： username:hash_fn(passwd):uid:group
             std::string username = pattern[0];
-            size_t passwd = std::strtoll(pattern[1].c_str(), nullptr, 10);
+            size_t passwd = std::strtoull(pattern[1].c_str(), nullptr, 10);
             std::string uid = pattern[2];
             std::string group = pattern[3];
             users.emplace_back(pattern[0], passwd, std::strtol(uid.c_str(), nullptr, 10),str2gid(group));
@@ -553,9 +603,13 @@ int init_DefaultUsers(superblock_c *spb, ioservice *io_context, inode_mgmt  *ino
         return 0;
     }
 
-    char default_user_info[128]="# DO NOT EDIT\n# User Attributes\ngroup SYSTEM\ngroup\tLOCAL\ngroup\tROOT\ngroup\tDEFAULT\nuser\troot:1:ROOT\nuser\tycy:2:ROOT\n";
+    std::hash<std::string> hash_fn;
+    char default_user_info[256];
+    std::string fmt("# DO NOT EDIT\n# User Attributes\ngroup SYSTEM\ngroup\tLOCAL\ngroup\tROOT\ngroup\tDEFAULT\nuser\troot:%lu:1:ROOT\nuser\tycy:%lu:2:ROOT\n");
+    size_t real_size = std::snprintf(default_user_info, sizeof(default_user_info), fmt.c_str(), hash_fn("passwd_root"), hash_fn("passwd_ycy"));
+
     vfstream f(inode_manager, "/.user", 'w', SYSTEM, SYSTEM);
-    f.write(default_user_info, sizeof(default_user_info));
+    f.write(default_user_info, real_size);
     f.close();
 
     uint32 size = inode_manager->getsizeof("/.user", SYSTEM, SYSTEM);

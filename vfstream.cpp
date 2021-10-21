@@ -108,7 +108,9 @@ bool vfstream::open(const std::string& path, char _mode) {
             can_write = true;   // 设置为可写
             can_read = false;   // 因为覆盖写模式下新开辟的缓冲区是空的，所以禁止读。
             _write_buffer = new char[BLOCK_SIZE];   // 写缓冲区大小默认为一个块大小，可以增长
+            write_buffer_size = BLOCK_SIZE;
             written_size = 0;   // 已写入缓冲区0字节
+            p = 0;
         }
     }
     else{    // 追加写模式
@@ -125,7 +127,9 @@ bool vfstream::open(const std::string& path, char _mode) {
             _read_buffer = new char[read_buffer_size];               // 开辟只读缓冲区的空间
             inode_manager->read(inode_id, _read_buffer);     // 把i节点对应的磁盘数据读到只读缓冲区
             _write_buffer = new char[BLOCK_SIZE];           // 写缓冲区大小默认为一个块大小，可以增长
+            write_buffer_size = BLOCK_SIZE;
             written_size = 0;   // 已写入缓冲区0字节
+            p = 0;
         }
     }
 
@@ -148,6 +152,7 @@ vfstream::vfstream(inode_mgmt *_inode_manager, ushort _uid, ushort _gid){
     read_buffer_size = 0;
     write_buffer_size = 0;
     written_size = 0;
+    p = 0;
 }
 
 vfstream::vfstream(inode_mgmt *_inode_manager, std::string path, char _mode, unsigned short _uid, unsigned short _gid) {
@@ -165,6 +170,7 @@ vfstream::vfstream(inode_mgmt *_inode_manager, std::string path, char _mode, uns
     read_buffer_size = 0;
     write_buffer_size = 0;
     written_size = 0;
+    p = 0;
     open(path, _mode);
 }
 
@@ -232,7 +238,7 @@ vfstream::~vfstream() {
     /*
      * 析构函数
      */
-    close();
+    if(opened) close();
 }
 
 bool vfstream::eof() {

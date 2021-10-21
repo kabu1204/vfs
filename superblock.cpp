@@ -113,8 +113,10 @@ std::pair<uint32, bool> superblock_c::alloc_block() {
         s_block.bitmap.set(block_id);   // bitmap置1，代表已分配
         s_block.last_p = block_id;
         s_block.free_block_num -= 1;
+        s_block.free_space -= BLOCK_SIZE;
         ret.first = block_id;
         ret.second = true;
+        store_superblock();
         return ret;
     }
 
@@ -124,8 +126,10 @@ std::pair<uint32, bool> superblock_c::alloc_block() {
             s_block.bitmap.set(i);
             s_block.last_p = i;
             s_block.free_block_num -= 1;
+            s_block.free_space -= BLOCK_SIZE;
             ret.first = i;
             ret.second = true;
+            store_superblock();
             return ret;
         }
     }
@@ -137,12 +141,15 @@ std::pair<uint32, bool> superblock_c::alloc_block() {
             s_block.bitmap.set(i);
             s_block.last_p = i;
             s_block.free_block_num -= 1;
+            s_block.free_space -= BLOCK_SIZE;
             ret.first = i;
             ret.second = true;
+            store_superblock();
             return ret;
         }
     }
 
+    store_superblock();
     return ret;
 }
 
@@ -187,7 +194,7 @@ void superblock_c::store_superblock() {
      *    将superblock写回到磁盘中
      */
     io_context->write((char *)&s_block, s_block.superblock_start_addr, s_block.superblock_size);
-    std::cout<<"Successfully wrote superblock back to disk!\n";
+//    std::cout<<"Successfully wrote superblock back to disk!\n";
 }
 
 void superblock_c::set_io_context(ioservice *_io_context) {
@@ -196,6 +203,7 @@ void superblock_c::set_io_context(ioservice *_io_context) {
      *   设置io服务，用于读写磁盘，主要为了将superblock写回磁盘
      */
     io_context = _io_context;
+    store_superblock();
 }
 
 void superblock_c::check_and_correct(uint32 inode_held_blocks_n) {
@@ -266,5 +274,5 @@ void superblock_c::check_and_correct(uint32 inode_held_blocks_n) {
 
     store_superblock();
 
-    std::printf("%.2f%% consistency; %u differences corrected", 100*(1-double(differences)/(13+MAX_SPACE/BLOCK_SIZE)), differences);
+    std::printf("%.3f%% consistency; %u differences corrected\n", 100*(1-double(differences)/(13+MAX_SPACE/BLOCK_SIZE)), differences);
 }
