@@ -1,7 +1,3 @@
-//
-// Created by yuchengye on 2021/10/19.
-//
-
 #include "ioservice.h"
 #include "types.h"
 #include <cstring>
@@ -101,4 +97,5 @@ bool ioservice::write_s(char *buffer, std::streamsize start_addr, std::streamsiz
 
 ioservice::~ioservice() {
     handler.close();
+    std::cout<<"ioservice closed!\n";
 }

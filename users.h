@@ -11,13 +11,21 @@
 #define DEFAULT 3
 
 struct USER{
-    char name[MAX_USER_NAME];   // 用户名
+    char name[MAX_USER_NAME_LEN];   // 用户名
+    size_t passwd;                  // 用户密码，经过hash后的
     ushort uid;                 // User ID
     ushort gid;                // Group ID
-    USER(char _name[MAX_USER_NAME], ushort _uid=DEFAULT, ushort _gid=DEFAULT){
+    USER(char _name[64], size_t _passwd, unsigned short _uid = DEFAULT, unsigned short _gid = DEFAULT) {
+        passwd = _passwd;
         uid = _uid;
         gid = _gid;
         strcpy(name, _name);
+    }
+    USER(const std::string &_name, size_t _passwd, unsigned short _uid = DEFAULT, unsigned short _gid = DEFAULT) {
+        passwd = _passwd;
+        uid = _uid;
+        gid = _gid;
+        strcpy(name, _name.c_str());
     }
 };
 

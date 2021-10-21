@@ -1,6 +1,7 @@
 #ifndef VFS_SUPERBLOCK_H
 #define VFS_SUPERBLOCK_H
 #include "types.h"
+#include "ioservice.h"
 #include <bitset>
 #include <vector>
 
@@ -32,11 +33,13 @@ class superblock_c {
 public:
     superblock s_block;
 
-    std::vector<uint32> reclaimed_blocks;    // 回收的磁盘块暂存在这里，以便快速分配。
-
     superblock_c(uint32 _superblock_start_addr, uint32 _max_space, uint32 _block_size = BLOCK_SIZE, uint32 _inode_num = MAX_INODE_NUM);
 
-    void load_super_block();
+    ~superblock_c();
+
+    void set_io_context(ioservice *_io_context);
+
+    void load_super_block(std::ifstream *disk);
 
     bool reclaim_block(uint32 block_id);
 
@@ -47,6 +50,10 @@ public:
     std::pair<uint32, bool > alloc_block();
 
 private:
+    std::vector<uint32> reclaimed_blocks;    // 回收的磁盘块暂存在这里，以便快速分配。
+    ioservice *io_context;      // ioservice
+
+    void store_superblock();
     void _alloc_blocks_addr(uint32 n, uint32 start_addr);
     void _write_bin(const char* s, uint32 n, uint32 start_addr);
 };

@@ -17,11 +17,12 @@ class vfstream {
 public:
     vfstream(inode_mgmt *_inode_manager, ushort _uid, ushort _gid);
     vfstream(inode_mgmt *_inode_manager, char path[128], char _mode, ushort _uid, ushort _gid);
+    ~vfstream();
     size_t read(char *dst, size_t n);
     size_t write(char *src, size_t n);
     bool seekp(uint32 addr);
     bool seekg(uint32 addr);
-    bool open(char path[MAX_FILENAME_LEN], char _mode);
+    bool open(const std::string& path, char _mode);
     void close();
     bool is_open() const;
 private:

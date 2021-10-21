@@ -11,7 +11,7 @@
 #include "users.h"
 #include "dir_entry.h"
 
-class vfstream;     // 因为需要声明vfstream是inode_mgmt的友元类，因此在这声明类vfstream，定义在vfstream.h
+class vfstream;     // 因为需要声明vfstream是inode_mgmt的友元类，因此在这声明类vfstream，定义在vfstream.h中
 
 #pragma pack(1)
 struct inode
@@ -47,13 +47,16 @@ public:
     ioservice* io_context;                  // 读写服务
 
     friend class vfstream;
+    friend std::pair<ushort, bool> path2inode_id(const std::string& path, inode_mgmt* inode_manager, ushort _uid, ushort _gid);
 
     explicit inode_mgmt(superblock_c *_spb, ioservice *_io_context);
+    ~inode_mgmt();
     bool load_inode(ushort inode_id);
     bool store_inode(ushort inode_id);
-    std::pair<ushort, bool> mkdir(char _filename[MAX_FILENAME_LEN], ushort prev_inode, ushort _owner, ushort _group);
-    std::pair<ushort, bool> mkfile(char _filename[MAX_FILENAME_LEN], ushort prev_inode, ushort _owner, ushort _group);
-    std::pair<ushort, bool> new_file(char _filename[MAX_FILENAME_LEN], ushort _owner, ushort _group, FILE_TYPE _filetype);
+    std::pair<ushort, bool> mkdir(std::string _filepath, unsigned short _owner, unsigned short _group);
+    std::pair<ushort, bool> mkfile(std::string _filepath, unsigned short _owner, unsigned short _group);
+    size_t getsizeof(std::string _filepath, ushort _uid, ushort _gid);
+    std::pair<std::string, bool> get_protection_code(unsigned short inode_id);
 
 private:
     bool reclaim_inode(ushort inode_id);
@@ -62,6 +65,10 @@ private:
     std::pair<std::string, bool> open(ushort inode_id, ushort _uid, ushort _gid);
     std::pair<dir_entry, bool> read_dir_entry(ushort inode_id, ushort _uid, ushort _gid);
     size_t read(ushort inode_id, char* dst);
+    std::pair<ushort, bool> new_file(std::string filename, ushort father_inode_id, ushort _owner, ushort _group, FILE_TYPE _filetype);
+    std::pair<unsigned short, std::string> parse_path(std::string filepath, ushort _uid, ushort _gid);
+    size_t _getsizeof(ushort inode_id);
+
 
 };
 

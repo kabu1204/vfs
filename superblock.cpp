@@ -16,6 +16,7 @@ superblock_c::superblock_c(uint32 _superblock_start_addr, uint32 _max_space, uin
     s_block.free_inode_num = s_block.max_inode_num;
 
     s_block.superblock_start_addr = _superblock_start_addr;
+    s_block.superblock_size = sizeof(s_block);
     s_block.last_p = 0;
 }
 
@@ -48,8 +49,14 @@ std::pair<std::vector<uint32>, bool> superblock_c::alloc_n_blocks(ushort n) {
      */
     std::pair<std::vector<uint32>, bool> ret(std::vector<uint32>(), false);
 
-    if(n>MAX_BLOCKS_PER_NODE) return ret;       // n不能超过每个i节点能索引的最大磁盘块数量
-    if(n>s_block.free_block_num) return ret;    // n不能大于剩余block数量
+    if(n>MAX_BLOCKS_PER_NODE){  // n不能超过每个i节点能索引的最大磁盘块数量
+        std::cerr<<"Cannot allocate "<<n<<" blocks at once! (Limits: "<<MAX_BLOCKS_PER_NODE<<")\n";
+        return ret;
+    }
+    if(n>s_block.free_block_num){   // n不能大于剩余block数量
+        std::cerr<<"Not enough blocks to allocate! ("<<s_block.free_block_num<<" left)\n";
+        return ret;
+    }
 
     std::pair<uint32, bool> res;
     for(ushort i=0; i<n; ++i)
@@ -153,13 +160,39 @@ bool superblock_c::reclaim_block(uint32 block_id) {
     s_block.free_block_num += 1;
     s_block.free_space += s_block.block_size;
 
+
     return true;
 }
 
-void superblock_c::load_super_block() {
+void superblock_c::load_super_block(std::ifstream *disk) {
     /*
-     * TODO:
      * 接口：
      *   读取已保存在磁盘上的superblock
      */
+    disk->read((char *)&s_block, s_block.superblock_size);
+}
+
+superblock_c::~superblock_c() {
+    /*
+     * 析构函数：
+     *    释放前将超级块信息写回磁盘
+     */
+    store_superblock();
+}
+
+void superblock_c::store_superblock() {
+    /*
+     * 内部方法：
+     *    将superblock写回到磁盘中
+     */
+    io_context->write((char *)&s_block, s_block.superblock_start_addr, s_block.superblock_size);
+    std::cout<<"Successfully wrote superblock back to disk!\n";
+}
+
+void superblock_c::set_io_context(ioservice *_io_context) {
+    /*
+     * 接口：
+     *   设置io服务，用于读写磁盘，主要为了将superblock写回磁盘
+     */
+    io_context = _io_context;
 }

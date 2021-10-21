@@ -43,7 +43,7 @@ void vfstream::close() {
     }
 }
 
-bool vfstream::open(char path[128], char _mode) {
+bool vfstream::open(const std::string& path, char _mode) {
     /*
      * 接口：
      *   打开文件
@@ -57,7 +57,7 @@ bool vfstream::open(char path[128], char _mode) {
 
     auto res = path2inode_id(path, inode_manager, uid, gid);
     if(!res.second){
-        std::cerr<<"Failed to get path inode_id!\n";
+        std::cerr<<"Failed to get "<<path<<"\'s inode_id!\n";
         return false;
     }
     inode_id = res.first;
@@ -85,7 +85,6 @@ bool vfstream::open(char path[128], char _mode) {
             read_buffer_size = inode_manager->in_mem_inodes[inode_id].fileSize;  // 只读缓冲区大小等于文件大小
             _read_buffer = new char[read_buffer_size];               // 开辟只读缓冲区的空间
             inode_manager->read(inode_id, _read_buffer);     // 把i节点对应的磁盘数据读到缓冲区
-
             p = 0;  // 设置指针位置为起始位置
         }
     }
@@ -147,6 +146,7 @@ vfstream::vfstream(inode_mgmt *_inode_manager, char path[128], char _mode, unsig
     inode_manager = _inode_manager;
     uid = _uid;
     gid = _gid;
+    opened = false;
     can_read = false;
     can_write = false;
     _read_buffer = nullptr;
@@ -191,7 +191,7 @@ size_t vfstream::write(char *src, size_t n) {
         write_buffer_size += extra_size;
     }
 
-    memcpy(src, _read_buffer + p, n);
+    memcpy(_write_buffer+p, src, n);
     written_size += n;
 
     return n;
@@ -213,4 +213,8 @@ bool vfstream::seekg(uint32_t addr) {
     if(!can_read) return false;
     if(addr<0 or addr >= read_buffer_size) return false;
     p = addr;
+}
+
+vfstream::~vfstream() {
+    close();
 }
