@@ -8,7 +8,6 @@
 shell::shell(const char* _tty, int id):user(USER("ycy", 0, ROOT, ROOT)) {
     /*
      * 初始化：
-     *   建立消息队列
      */
     logged = false;
     loop();
@@ -16,7 +15,7 @@ shell::shell(const char* _tty, int id):user(USER("ycy", 0, ROOT, ROOT)) {
 
 void shell::login(){
     /*
-     * 登录
+     * 用于和服务端登录过程交互
      */
     std::hash<std::string> hash_fn;
     ushort trials = 3;  // 最多尝试3次
@@ -55,7 +54,12 @@ shell::~shell() {
 }
 
 void shell::loop() {
+    /*
+     * 主循环，客户端是写-读-写-读交替进行
+     */
 
+    // 创建消息队列
+    // 这是写队列
     std::string str;
     msq_id_send = msgget((key_t)1234, 0666|IPC_CREAT);
     if(msq_id_send==-1)
@@ -64,6 +68,7 @@ void shell::loop() {
         return;
     }
 
+    // 这是读队列
     long int msg_to_receive = 0;  //如果为0，表示消息队列中的所有消息都会被读取
     msq_id_recv = msgget((key_t)2345, 0666|IPC_CREAT);
     if(msq_id_recv==-1)

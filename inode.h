@@ -75,6 +75,7 @@ public:
     std::pair<std::vector<std::string>, bool> get_child_filename(std::vector<ushort> child_inodes);
     std::pair<unsigned short, bool> get_inode_id(std::string path, ushort _uid, ushort _gid, ushort back_n=0);
     uint32_t check_and_correct();
+    bool chmod(ushort inode_id, ushort _uid, ushort _gid);
 
 private:
     bool reclaim_inode(ushort inode_id);

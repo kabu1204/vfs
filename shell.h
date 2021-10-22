@@ -20,14 +20,12 @@ public:
     void loop();
     ~shell();
 private:
-    char tty[64];   // 用于创建key的映射文件名
-    key_t key;      // 用于创建消息队列的key
-    int msq_id_send;     // 读队列
-    int msq_id_recv;    //  写队列
-    bool logged;
-    USER user;      // 当前shell登录的用户
-    msg_proto msg;   // 缓冲区
-    std::string cwd="/";
+    int msq_id_send;        // 发送队列
+    int msq_id_recv;        //  接收队列
+    bool logged;            // 登录状态
+    USER user;              // 当前shell登录的用户
+    msg_proto msg;          // 缓冲区
+    std::string cwd="/";    // 当前工作目录
 };
 
 

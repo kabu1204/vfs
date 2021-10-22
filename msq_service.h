@@ -29,14 +29,14 @@ public:
     void send(const char *buffer);
     ~msq_service();
 private:
-    inode_mgmt* inode_manager;
-    superblock_c* spb;
-    int msq_id_recv;
-    int msq_id_send;
-    bool logged;
-    USER user;      // 当前shell登录的用户
+    inode_mgmt* inode_manager;  // i节点管理器
+    superblock_c* spb;  // 超级块管理器
+    int msq_id_recv;    // 接收队列
+    int msq_id_send;    // 发送队列
+    bool logged;        // 登录状态
+    USER user;          // 当前shell登录的用户
     std::string& cwd;   // 当前工作目录
-    msg_proto msg;   // 缓冲区
+    msg_proto msg;      // 缓冲区
 };
 
 

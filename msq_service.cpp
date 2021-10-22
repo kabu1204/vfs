@@ -17,18 +17,24 @@ msq_service::msq_service(const char* _tty, int id, std::vector<USER> users, inod
 }
 
 void msq_service::loop(std::vector<USER> users) {
+    /*
+     *  主循环
+     *  服务端是读-写-读-写交替进行
+     */
 
     long int msg_to_receive = 0;  //如果为0，表示消息队列中的所有消息都会被读取
     time_t t = time(nullptr);
     char cur_time[64];
 
-    //创建消息队列：
+    // 创建消息队列
+    // 这是读队列
     msq_id_recv = msgget((key_t) 1234, 0666 | IPC_CREAT);
     if (msq_id_recv == -1) {
         std::cerr << "Message queue setup failed!" << std::endl;
         return;
     }
 
+    // 这是写队列
     msq_id_send = msgget((key_t) 2345, 0666 | IPC_CREAT);
     if (msq_id_send == -1) {
         std::cerr << "Message queue setup failed!" << std::endl;
@@ -59,15 +65,18 @@ void msq_service::loop(std::vector<USER> users) {
         send(cwd.c_str());
 
     }
-    if (msgctl(msq_id_recv, IPC_RMID, 0) == -1) // 删除消息队列
-    {
-        fprintf(stderr, "msgctl(IPC_RMID) failed\n");
-        exit(EXIT_FAILURE);
+    if (msgctl(msq_id_recv, IPC_RMID, 0) == -1){
+        // 销毁消息队列
+        std::cerr<<"Failed to destroy message queue!"<<std::endl;
+        exit(-1);
     }
-    exit(EXIT_SUCCESS);
+    exit(0);
 }
 
 void msq_service::login(std::vector<USER> users){
+    /*
+     * 用于和客户shell完成登录交互
+     */
     int trials = 3;
     long int msg_to_receive = 0;
     std::string username;
@@ -104,6 +113,9 @@ void msq_service::login(std::vector<USER> users){
 }
 
 void msq_service::send(const char *buffer){
+    /*
+     * 向发送队列放入消息
+     */
     msg.mtype = IPC_SERVER2CLI;
     strcpy(msg.data, buffer);
     if(msgsnd(msq_id_send, (void *)&msg, IPC_BUFFER_SIZE, 0)==-1){
@@ -113,6 +125,9 @@ void msq_service::send(const char *buffer){
 }
 
 void msq_service::recv(){
+    /*
+     * 从接收队列拿出消息
+     */
     long int msg_to_receive = 0;
     if(msgrcv(msq_id_recv, (void *)&msg, BUFSIZ, msg_to_receive, 0) == -1)
     {

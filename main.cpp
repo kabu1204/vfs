@@ -18,8 +18,10 @@ USER user("system", 0, SYSTEM, SYSTEM);
 
 int main(int argc, char **argv) {
     if(argc>=2){
+        // 使用./vfs client命令开启客户端
+        // 顺序是先开服务端，再开客户端
+        // 运行完成后需要执行ipcrm清除共享内存
         if(strcmp(argv[1], "client")==0){
-            char tty[64] = "./ipc_msg";
             shell sh("./ipc_msg", 123);
         }
     }
